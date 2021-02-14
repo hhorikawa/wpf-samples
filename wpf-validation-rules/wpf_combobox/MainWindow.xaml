@@ -1,0 +1,96 @@
+﻿<!-- x:Class で紐づけるクラスを指定 -->
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:wpf_combobox"
+        x:Class="wpf_combobox.MainWindow" 
+        Title="MainWindow" Height="400" Width="500">
+  <!-- WPF は, viewmodel との binding が必須. 
+    XAML で DataContext を設定するのが推奨される
+    ここでの指定は, 原則として "型". この場合, Viewmodel インスタンスが暗黙に
+    生成される. -->
+  <Window.DataContext>
+    <local:MyViewModel />
+  </Window.DataContext>
+  <Window.Resources>
+    <!-- エラー時にメッセージを表示する -->
+    <ControlTemplate x:Key="errorTemplate">
+      <StackPanel>
+        <!-- 枠線を付ける -->
+        <Border BorderBrush="Red" BorderThickness="1"
+             Width="{Binding ElementName=adornedElement, Path=ActualWidth}"
+             Height="{Binding ElementName=adornedElement, Path=ActualHeight}">
+          <!-- Placeholder for the TextBox itself -->
+          <AdornedElementPlaceholder Name="adornedElement"/>
+        </Border>
+        <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" />
+      </StackPanel>
+    </ControlTemplate>
+  </Window.Resources>
+
+  <Grid Name="gridView">
+    <!-- BindingGroup を作ると, 内側のすべてXAML要素の Binding 
+      [UpdateSourceTrigger=default のもの] ついて, source (viewmodel) 
+      への変更通知が, BindingGroup#CommitEdit() まで保留される.
+  See https://social.technet.microsoft.com/wiki/contents/articles/21993.wpf-the-myth-of-bindinggroup.aspx
+    -->
+    <Grid.BindingGroup>
+      <BindingGroup NotifyOnValidationError="True">
+        <!-- 検証器は, 原則として BindingGroup#CommitEdit() したときに呼び出される.
+         ValidatesOnTargetUpdated="True" のときは、Load 時にも呼び出される. 
+         この場合でも, 各コントロールの変更のつどではない. (意味ない) -->
+        <BindingGroup.ValidationRules>
+          <local:MyViewValidator ValidationStep="ConvertedProposedValue" />
+        </BindingGroup.ValidationRules>
+      </BindingGroup>
+    </Grid.BindingGroup>
+
+    <!-- 各XAML要素の Name 属性は MainWindow に変数ができる. 
+      Binding は, source 指定した object に対して, path 指定のプロパティに紐づ
+      ける.
+      source を省略すると DataContext オブジェクト. -->
+    <!-- ComboBox に表示する items の設定: 
+        ItemSource, SelectedValuePath, DisplayMemberPath で参照するか, 次のように書く;
+        <ComboBox>
+          <ComboBoxItem Content="表示テキスト" Tag="100" />...
+        </ComboBox> 
+      選択中の値:
+        SelectedValue property
+    -->
+    <ComboBox Name="combo1" 
+              ItemsSource="{Binding Source={x:Static local:MyViewModel.s_comboDic1}, Mode=OneWay}" 
+              SelectedValuePath="Key" DisplayMemberPath="Value" 
+              SelectedValue="{Binding Combo1, UpdateSourceTrigger=PropertyChanged}" 
+              HorizontalAlignment="Left" 
+              Margin="85,61,0,0" VerticalAlignment="Top" Width="120"/>
+    <ComboBox Name="combo2" 
+              ItemsSource="{Binding Source={x:Static local:MyViewModel.s_comboDic2}, Mode=OneWay}" 
+              SelectedValuePath="Key" DisplayMemberPath="Value" 
+              SelectedValue="{Binding Combo2, UpdateSourceTrigger=PropertyChanged}" 
+              HorizontalAlignment="Left" Margin="85,99,0,0" VerticalAlignment="Top" Width="120"/>
+    <Button Content="Button only banana" IsEnabled="{Binding ButtonEnabled}" 
+            HorizontalAlignment="Left" Margin="260,62,0,0" VerticalAlignment="Top" Width="75"/>
+    <Button Content="Done" HorizontalAlignment="Left" Margin="204,200,0,0" VerticalAlignment="Top" Width="75" 
+            Click="DoneButton_Click"/>
+    <Label HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top">数値(>= 1):</Label>
+    <!-- 記法: XAML 要素の属性は, XAML要素の属性として書いてもいいし, 子要素と
+      して書いてもよい. マジか -->
+    <TextBox Name="numberBox" HorizontalAlignment="Left" Height="23" Margin="85,141,0,0" 
+             Validation.ErrorTemplate="{StaticResource errorTemplate}" VerticalAlignment="Top" Width="120">
+      <TextBox.Text>
+        <!-- XAML 属性値の {...} も, 子要素として書いてよい。というかそれの簡略記法.
+          TextBox の UpdateSourceTrigger の default 値は LostFocus. リアルタイ
+          ム検証したいときは変更すること。-->
+        <Binding Path="NumberBox" UpdateSourceTrigger="PropertyChanged">
+          <!-- 検証器は複数書ける. DependencyProperty.Register() では一つしか書けない. -->
+          <Binding.ValidationRules>
+            <local:ValidatesPresence />
+            <local:ValidatesIntInclusion Min="1" ValidationStep="RawProposedValue" />
+          </Binding.ValidationRules>
+        </Binding>
+      </TextBox.Text>
+    </TextBox>
+    <TextBlock HorizontalAlignment="Left" Margin="260,23,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="34" Width="90"><Run Text="コンボボックス"/><Run Text="の"/><LineBreak/><Run Text="値変更に追従"/></TextBlock>
+    <TextBlock HorizontalAlignment="Left" Margin="204,225,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="複数のコントロールで"/><Run Text="値"/><Run Text="検証"/></TextBlock>
+  </Grid>
+</Window>
