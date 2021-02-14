@@ -1,7 +1,8 @@
 # wpf-samples
 
-WPF は多様な書き方が可能だが、かえってどのように書くべきなのかがさっぱり分からない。
-.NET 5.0 でも WPF が使えるようになったので, 整理しておく。
+.NET Core 3.0 [2019年9月] から再び WPF が使えるようになり, .NET 5.0 でも普通に動いているので, WPF はアプリケーション開発の選択肢として選べる。先行きに不安があった。
+
+WPF は多様な書き方が可能だが、かえってどのように書くべきなのかがさっぱり分からない。整理しておく。
 
 
 ## wpf-validation-rules
@@ -13,3 +14,5 @@ WPF は多様な書き方が可能だが、かえってどのように書くべ�
  - エラーの表示. フィールドの近くに表示するのが UI 観点でも good.
  
  
+<a href="https://blog.magnusmontin.net/2013/08/26/data-validation-in-wpf/">Data validation in WPF | Magnus Montin</a>
+
