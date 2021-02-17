@@ -1,4 +1,5 @@
-﻿
+﻿// -*- mode:csharp -*-
+
 #if USE_INPC
 using System;
 using System.ComponentModel; // INotifyPropertyChanged, IDataErrorInfo

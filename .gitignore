@@ -1,0 +1,7 @@
+
+*~
+*.bak
+UpgradeLog.htm
+
+Debug/
+.vs/

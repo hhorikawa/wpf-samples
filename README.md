@@ -1,6 +1,6 @@
 # wpf-samples
 
-.NET Core 3.0 [2019年9月] から再び WPF が使えるようになり, .NET 5.0 でも普通に動いているので, WPF はアプリケーション開発の選択肢として選べる。先行きに不安があった。
+.NET Core 3.0 [2019年9月] から再び WPF が使えるようになり, .NET 5.0 でも普通に動いているので, WPF はアプリケーション開発の選択肢として選べる。Silverlight, UWP などに移行したほうがいいのか, 先行きに不安があった。
 
 WPF は多様な書き方が可能だが、かえってどのように書くべきなのかがさっぱり分からない。整理しておく。
 
@@ -15,4 +15,15 @@ WPF は多様な書き方が可能だが、かえってどのように書くべ�
  
  
 <a href="https://blog.magnusmontin.net/2013/08/26/data-validation-in-wpf/">Data validation in WPF | Magnus Montin</a>
+
+
+
+## ListView-DataVirtualization
+
+表形式で大量のデータを表示する場合、データ全部をメモリに載せると大変。Data virtualization で, 表示するのに必要なデータだけ view model から提供する。
+
+`ListView` のサンプル. `IList` から派生させたクラスで `this[]` と `GetEnumerator()` を実装する。
+
+
+Forked from <a href="https://www.codeproject.com/Articles/34405/WPF-Data-Virtualization">WPF: Data Virtualization - CodeProject</a>
 
