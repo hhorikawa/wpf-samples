@@ -9,9 +9,10 @@ namespace DataVirtualization
     /// Derived VirtualizatingCollection, performing loading asychronously.
     /// </summary>
     /// <typeparam name="T">The type of items in the collection</typeparam>
-    public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged
-    {
-        #region Constructors
+public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
+        INotifyCollectionChanged, INotifyPropertyChanged
+{
+    #region Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncVirtualizingCollection&lt;T&gt;"/> class.

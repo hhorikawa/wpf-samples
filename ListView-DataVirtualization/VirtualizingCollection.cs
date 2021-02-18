@@ -7,7 +7,32 @@ using System.Diagnostics;
 
 namespace DataVirtualization
 {
-    /// <summary>
+/**
+ * ListView.ItemsSource は IEnumerable 型. <-かなり基本的な型. 何でも使える感じ.
+ *   ... IEnumerable<T> ではないことに注意.
+ *
+ * DataGrid では, IEnumerable インタフェイスだけでは不十分で, 非ジェネリックな
+ * IList を実装していなければならない
+ *
+ * IList<T> implements ICollection<T>. ICollection<T> implements IEnumerable<T>.
+ * IEnumerable<T> implements IEnumerable.
+ * IList implements ICollection. ICollection implements IEnumerable.
+ *   => 過去との互換性のため, 標準クラスでは IList<T>, IList の両方を実装するク
+ *      ラスが多いが, 単に IList を実装するのでもよい.
+ *
+ * DataGrid で並び替え、フィルタしたいときは, コンテナオブジェクトを
+ * CollectionView で wrap する. しかし、そもそも実データが全部ない場合は,
+ * CollectionView の意味がない。
+ *
+ * ItemsSource に渡す具象クラスとしては, CLR List<T> よりも
+ * ObservableCollection<T> が推奨される.
+ *   See https://docs.microsoft.com/en-us/dotnet/desktop/wpf/advanced/optimizing-performance-data-binding
+ * しかし, クラスを自作するときは, ObservableCollection<T> からは難儀。
+ *   => 非ジェネリックな IList インタフェイスを実装して, Collection<T> class を
+ *      作るような形にするのが良い。
+ */
+
+
     /// Specialized list implementation that provides data virtualization. The collection is divided up into pages,
     /// and pages are dynamically fetched from the IItemsProvider when required. Stale pages are removed after a
     /// configurable period of time.
@@ -20,23 +45,11 @@ namespace DataVirtualization
     /// </remarks>
     /// <typeparam name="T"></typeparam>
 // このインスタンスを ItemsSource に設定している。
-// ListView.ItemsSource は IEnumerable 型. <-かなり基本的な型. 何でも使える感じ.
-// ... IEnumerable<T> ではないことに注意.
-// IList<T> implements ICollection<T>, IEnumerable<T>, IEnumerable. 使えるOK
-// IList implements ICollection. ICollection implements IEnumerable.
-// ... IList<T> を使う場合は IEnumerable インタフェイスを実装していくこと。
-//     なので, 単に IList を実装したほうがよい.
-// DataGrid.ItemsSource も同じ。
-//     参考: ソート・直接編集したいときは CollectionViewSource で wrap する.
-// 他にも,
-//     ObservableCollection<T> class ← Collection<T> class なども使える.
-//     Collection<T> implements IList<T>, IList
-// CLR List<T> よりも ObservableCollection<T> が推奨される
-// See https://docs.microsoft.com/en-us/dotnet/desktop/wpf/advanced/optimizing-performance-data-binding
 public class VirtualizingCollection<T> : //IList<T>, 
 #if USE_ILIST
     IList
 #endif
+   // , IReadOnlyList<T> これも有効にするとフリーズしてしまう. Why?
 {
     #region Constructors
 
@@ -121,18 +134,14 @@ public class VirtualizingCollection<T> : //IList<T>,
         /// The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"/>.
         /// </returns>
     public virtual int Count {
-            get
-            {
-                if (_count == -1)
-                {
+        get {
+            if (_count == -1)
                     LoadCount();
-                }
-                return _count;
-            }
-            protected set
-            {
+            return _count;
+        }
+        protected set {
                 _count = value;
-            }
+        }
     }
 
 
@@ -205,11 +214,10 @@ public class VirtualizingCollection<T> : //IList<T>,
         /// </returns>
     public IEnumerator<T> GetEnumerator() 
     {
-            for (int i = 0; i < Count; i++)
-            {
-                yield return this[i];
-            }
+        for (int i = 0; i < Count; i++) {
+            yield return this[i];
         }
+    }
 
         /// <summary>
         /// Returns an enumerator that iterates through a collection.
@@ -219,7 +227,7 @@ public class VirtualizingCollection<T> : //IList<T>,
         /// </returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
-            return GetEnumerator();
+        return GetEnumerator();
     }
 
         /// <summary>
@@ -229,10 +237,10 @@ public class VirtualizingCollection<T> : //IList<T>,
         /// <exception cref="T:System.NotSupportedException">
         /// The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
         /// </exception>
-        public void Add(T item)
-        {
+    public void Add(T item)
+    {
             throw new NotSupportedException();
-        }
+    }
 
 #if USE_ILIST
         int IList.Add(object value)
