@@ -1,12 +1,9 @@
-﻿#define USE_ILIST // こっちが必要!
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace DataVirtualization
-{
 /**
  * ListView.ItemsSource は IEnumerable 型. <-かなり基本的な型. 何でも使える感じ.
  *   ... IEnumerable<T> ではないことに注意.
@@ -33,6 +30,9 @@ namespace DataVirtualization
  */
 
 
+namespace DataVirtualization
+{
+
     /// Specialized list implementation that provides data virtualization. The collection is divided up into pages,
     /// and pages are dynamically fetched from the IItemsProvider when required. Stale pages are removed after a
     /// configurable period of time.
@@ -40,408 +40,296 @@ namespace DataVirtualization
     /// due to memory consumption or fetch latency.
     /// </summary>
     /// <remarks>
-    /// The IList implmentation is not fully complete, but should be sufficient for use as read only collection 
+    /// The IList implmentation is not fully complete, but should be sufficient for use as read only collection
     /// data bound to a suitable ItemsControl.
     /// </remarks>
     /// <typeparam name="T"></typeparam>
 // このインスタンスを ItemsSource に設定している。
-public class VirtualizingCollection<T> : //IList<T>, 
-#if USE_ILIST
-    IList
-#endif
-   // , IReadOnlyList<T> これも有効にするとフリーズしてしまう. Why?
+// ListCollectionView に渡せるよう, 非ジェネリックな IList のみを実装する.
+public class VirtualizingCollection<T> : IList
 {
+    const string READONLY_ERROR = "Read Only";
+
+    // 実際にデータを取得するクラス。ネットワーク経由、など。
+    protected readonly IItemsProvider<T> _itemsProvider;
+
+    // 疎な配列.
+    protected readonly Dictionary<int, IList<T> > _pages =
+                                        new Dictionary<int, IList<T> >();
+
+    protected readonly Dictionary<int, DateTime> _pageTouchTimes =
+                                        new Dictionary<int, DateTime>();
+
+    // 1ページ当たりの要素数
+    protected readonly int _pageSize;
+
+    private Object _syncRoot;
+
+
+    ///////////////////////////////////////////////////////////
     #region Constructors
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VirtualizingCollection&lt;T&gt;"/> class.
+    /// Initializes a new instance of the <see cref="VirtualizingCollection&lt;T&gt;"/> class.
         /// </summary>
         /// <param name="itemsProvider">The items provider.</param>
-        /// <param name="pageSize">Size of the page.</param>
-        /// <param name="pageTimeout">The page timeout.</param>
-    public VirtualizingCollection(IItemsProvider<T> itemsProvider, int pageSize, int pageTimeout)
+    /// <param name="pageSize">Size of the page.</param>
+    public VirtualizingCollection(IItemsProvider<T> itemsProvider,
+                                  int pageSize = 1000)
     {
-            _itemsProvider = itemsProvider;
-            _pageSize = pageSize;
-            _pageTimeout = pageTimeout;
-    }
+        if (itemsProvider == null)
+            throw new ArgumentNullException("itemsProvider");
+        if (pageSize < 0 )
+            throw new ArgumentOutOfRangeException("pageSize");
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VirtualizingCollection&lt;T&gt;"/> class.
-        /// </summary>
-        /// <param name="itemsProvider">The items provider.</param>
-        /// <param name="pageSize">Size of the page.</param>
-    public VirtualizingCollection(IItemsProvider<T> itemsProvider, int pageSize)
-        {
-            _itemsProvider = itemsProvider;
-            _pageSize = pageSize;
-    }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VirtualizingCollection&lt;T&gt;"/> class.
-        /// </summary>
-        /// <param name="itemsProvider">The items provider.</param>
-    public VirtualizingCollection(IItemsProvider<T> itemsProvider)
-        {
-            _itemsProvider = itemsProvider;
+        _itemsProvider = itemsProvider;
+        _pageSize = pageSize;
     }
 
     #endregion
 
-    //////////////////////////////////////////////////////////////////
-    #region Properties
 
-    private readonly IItemsProvider<T> _itemsProvider;
-            /// <summary>
-        /// Gets the items provider.
-        /// </summary>
-        /// <value>The items provider.</value>
-    public IItemsProvider<T> ItemsProvider {
-            get { return _itemsProvider; }
-    }
+    ///////////////////////////////////////////////////////////
+    #region Public Properties
 
-
-    private readonly int _pageSize = 100;
-        /// <summary>
-        /// Gets the size of the page.
-        /// </summary>
-        /// <value>The size of the page.</value>
-    public int PageSize {
-            get { return _pageSize; }
-    }
-
-    private readonly long _pageTimeout = 10000;
-        /// <summary>
-        /// Gets the page timeout.
-        /// </summary>
-        /// <value>The page timeout.</value>
-    public long PageTimeout {
-            get { return _pageTimeout; }
-    }
-
-    #endregion
-
-    //////////////////////////////////////////////////////////////////
-    #region IList<T>, IList properties
-
-    private int _count = -1;
-        /// <summary>
+    protected int _count = -1;
         /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"/>.
         /// The first time this property is accessed, it will fetch the count from the IItemsProvider.
-        /// </summary>
-        /// <value></value>
-        /// <returns>
-        /// The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"/>.
-        /// </returns>
+    // @return The number of the virtualized total elements. <see cref="T:System.Collections.Generic.ICollection`1"/>.
     public virtual int Count {
         get {
-            if (_count == -1)
-                    LoadCount();
+            if (_count == -1) {
+                _count = _itemsProvider.Count().Result; // 同期する
+            }
             return _count;
         }
-        protected set {
-                _count = value;
-        }
     }
 
-
-        /// <summary>
-        /// Gets the item at the specified index. This property will fetch
-        /// the corresponding page from the IItemsProvider if required.
-        /// </summary>
-        /// <value></value>
+    /// Gets the item at the specified index. This property will fetch
+    /// the corresponding page from the IItemsProvider if required.
+    /// </summary>
+    /// <value></value>
     // このプロパティがキモ!
-    public T this[int index] {
+    public object this[int index] {
         get {
-                // determine which page and offset within page
-                int pageIndex = index / PageSize;
-                int pageOffset = index % PageSize;
+            // determine which page and offset within page
+            int pageIndex = index / _pageSize;
+            int pageOffset = index % _pageSize;
 
-                // request primary page
-                RequestPage(pageIndex);
+            // request primary page
+            RequestPage(pageIndex);
 
-                // if accessing upper 50% then request next page
-                if ( pageOffset > PageSize/2 && pageIndex < Count / PageSize)
-                    RequestPage(pageIndex + 1);
-
+            // if accessing upper 50% then request next page
+            if ( pageOffset > _pageSize / 2 && pageIndex < Count / _pageSize)
+                RequestPage(pageIndex + 1);
+            else if (pageOffset < _pageSize / 2 && pageIndex > 0) {
                 // if accessing lower 50% then request prev page
-                if (pageOffset < PageSize/2 && pageIndex > 0)
-                    RequestPage(pageIndex - 1);
-
-                // remove stale pages
-                CleanUpPages();
-
-                // defensive check in case of async load
-                if (_pages[pageIndex] == null)
-                    return default(T);
-
-                // return requested item
-                return _pages[pageIndex][pageOffset];
+                RequestPage(pageIndex - 1);
             }
-            set { throw new NotSupportedException(); }
+
+            // remove stale pages
+            CleanUpPages();
+
+            // defensive check in case of async load
+            if (_pages[pageIndex] == null)
+                return default(T);
+
+            // return requested item
+            return _pages[pageIndex][pageOffset];
         }
-
-#if USE_ILIST
-    object IList.this[int index] {
-            get { return this[index]; }
-            set { throw new NotSupportedException(); }
+        set { throw new NotSupportedException(READONLY_ERROR); }
     }
-#endif
 
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
-        /// </summary>
-        /// <value></value>
-        /// <returns>Always true.
-        /// </returns>
+    /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
+    /// </summary>
+    /// <value></value>
+    /// <returns>Always true.
     public bool IsReadOnly {
-            get { return true; }
+        get { return true; }
+    }
+
+    /// Gets a value indicating whether the <see cref="T:System.Collections.IList"/> has a fixed size.
+    /// </summary>
+    /// <value></value>
+    /// <returns>Always false.
+    /// </returns>
+    public bool IsFixedSize {
+        get { return true; }
+    }
+
+    /// Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"/>.
+    /// <returns>
+    /// An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"/>.
+    public object SyncRoot {
+        get {
+            if (_syncRoot == null) {
+                ICollection c = _pages as ICollection;
+                _syncRoot = c.SyncRoot;
+            }
+            return _syncRoot;
+        }
+    }
+
+    /// Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection"/> is synchronized (thread safe).
+    /// </summary>
+    /// <value></value>
+    /// <returns>Always false.
+    public bool IsSynchronized {
+        get { return false; }
     }
 
     #endregion
 
-    //////////////////////////////////////////////////////////////////
-    #region IEnumerable<T>, IEnumerable methods
 
-        /// <summary>
-        /// Returns an enumerator that iterates through the collection.
-        /// </summary>
-        /// <remarks>
-        /// This method should be avoided on large collections due to poor performance.
-        /// </remarks>
-        /// <returns>
-        /// A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
-        /// </returns>
-    public IEnumerator<T> GetEnumerator() 
+    //////////////////////////////////////////////////////////////////
+    #region Public Methods
+
+    /// Returns an enumerator that iterates through the collection.
+    /// </summary>
+    /// <remarks>
+    /// This method should be avoided on large collections due to poor performance.
+    /// </remarks>
+    /// <returns>
+    /// A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
+    public IEnumerator GetEnumerator()
     {
         for (int i = 0; i < Count; i++) {
             yield return this[i];
         }
     }
 
-        /// <summary>
-        /// Returns an enumerator that iterates through a collection.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="T:System.Collections.IEnumerator"/> object that can be used to iterate through the collection.
-        /// </returns>
-    IEnumerator IEnumerable.GetEnumerator()
+    /// Not supported.
+    /// </summary>
+    /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+    /// <exception cref="T:System.NotSupportedException">
+    /// The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
+    public int Add(object value)
     {
-        return GetEnumerator();
+        throw new NotSupportedException(READONLY_ERROR);
     }
 
-        /// <summary>
-        /// Not supported.
-        /// </summary>
-        /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
-        /// <exception cref="T:System.NotSupportedException">
-        /// The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
-        /// </exception>
-    public void Add(T item)
+
+    /// Not supported.
+    /// </summary>
+    /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+    /// <returns>
+    /// Always false.
+    public bool Contains(object value)
     {
-            throw new NotSupportedException();
+        throw new NotSupportedException();
     }
 
-#if USE_ILIST
-        int IList.Add(object value)
-        {
-            throw new NotSupportedException();
-        }
-#endif
 
-#if USE_ILIST
-        bool IList.Contains(object value)
-        {
-            return Contains((T)value);
-        }
-#endif
-
-        /// <summary>
-        /// Not supported.
-        /// </summary>
-        /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
-        /// <returns>
-        /// Always false.
-        /// </returns>
-        public bool Contains(T item)
-        {
-            return false;
-        }
-
-
-        /// <summary>
-        /// Not supported.
-        /// </summary>
-        /// <exception cref="T:System.NotSupportedException">
-        /// The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
-        /// </exception>
-        public void Clear()
-        {
-            throw new NotSupportedException();
-        }
-
-
-#if USE_ILIST
-        int IList.IndexOf(object value)
-        {
-            return IndexOf((T) value);
-        }
-#endif
-        /// <summary>
-        /// Not supported
-        /// </summary>
-        /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.IList`1"/>.</param>
-        /// <returns>
-        /// Always -1.
-        /// </returns>
-        public int IndexOf(T item)
-        {
-            return -1;
-        }
-
-
-        /// <summary>
-        /// Not supported.
-        /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-        /// <param name="item">The object to insert into the <see cref="T:System.Collections.Generic.IList`1"/>.</param>
-        /// <exception cref="T:System.ArgumentOutOfRangeException">
-        /// 	<paramref name="index"/> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1"/>.
-        /// </exception>
-        /// <exception cref="T:System.NotSupportedException">
-        /// The <see cref="T:System.Collections.Generic.IList`1"/> is read-only.
-        /// </exception>
-        public void Insert(int index, T item)
-        {
-            throw new NotSupportedException();
-        }
-
-#if USE_ILIST
-        void IList.Insert(int index, object value)
-        {
-            Insert(index, (T)value);
-        }
-#endif
-
-        /// <summary>
-        /// Not supported.
-        /// </summary>
-        /// <param name="index">The zero-based index of the item to remove.</param>
-        /// <exception cref="T:System.ArgumentOutOfRangeException">
-        /// 	<paramref name="index"/> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1"/>.
-        /// </exception>
-        /// <exception cref="T:System.NotSupportedException">
-        /// The <see cref="T:System.Collections.Generic.IList`1"/> is read-only.
-        /// </exception>
-        public void RemoveAt(int index)
-        {
-            throw new NotSupportedException();
-        }
-
-#if USE_ILIST
-        void IList.Remove(object value)
-        {
-            throw new NotSupportedException();
-        }
-#endif
-        /// <summary>
-        /// Not supported.
-        /// </summary>
-        /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
-        /// <returns>
-        /// true if <paramref name="item"/> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1"/>; otherwise, false. This method also returns false if <paramref name="item"/> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1"/>.
-        /// </returns>
-        /// <exception cref="T:System.NotSupportedException">
-        /// The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
-        /// </exception>
-        public bool Remove(T item)
-        {
-            throw new NotSupportedException();
-        }
-
-
-        /// <summary>
-        /// Not supported.
-        /// </summary>
-        /// <param name="array">The one-dimensional <see cref="T:System.Array"/> that is the destination of the elements copied from <see cref="T:System.Collections.Generic.ICollection`1"/>. The <see cref="T:System.Array"/> must have zero-based indexing.</param>
-        /// <param name="arrayIndex">The zero-based index in <paramref name="array"/> at which copying begins.</param>
-        /// <exception cref="T:System.ArgumentNullException">
-        /// 	<paramref name="array"/> is null.
-        /// </exception>
-        /// <exception cref="T:System.ArgumentOutOfRangeException">
-        /// 	<paramref name="arrayIndex"/> is less than 0.
-        /// </exception>
-        /// <exception cref="T:System.ArgumentException">
-        /// 	<paramref name="array"/> is multidimensional.
-        /// -or-
-        /// <paramref name="arrayIndex"/> is equal to or greater than the length of <paramref name="array"/>.
-        /// -or-
-        /// The number of elements in the source <see cref="T:System.Collections.Generic.ICollection`1"/> is greater than the available space from <paramref name="arrayIndex"/> to the end of the destination <paramref name="array"/>.
-        /// -or-
-        /// Type <paramref name="T"/> cannot be cast automatically to the type of the destination <paramref name="array"/>.
-        /// </exception>
-    public void CopyTo(T[] array, int arrayIndex)
+    /// Not supported.
+    /// </summary>
+    /// <exception cref="T:System.NotSupportedException">
+    /// The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
+    public void Clear()
     {
-            throw new NotSupportedException();
+        throw new NotSupportedException(READONLY_ERROR);
     }
 
-#if USE_ILIST
-        void ICollection.CopyTo(Array array, int index)
-        {
-            throw new NotSupportedException();
-        }
-#endif
-    #endregion
-    
-        
-    #region Misc
 
-        /// <summary>
-        /// Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"/>.
-        /// </summary>
-        /// <value></value>
-        /// <returns>
-        /// An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"/>.
-        /// </returns>
-        public object SyncRoot
-        {
-            get { return this; }
-        }
+    /// Not supported
+    /// </summary>
+    /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.IList`1"/>.</param>
+    /// <returns>
+    /// Always -1.
+    public int IndexOf(object value)
+    {
+        return -1; // dummy
+        throw new NotSupportedException();
+    }
 
-        /// <summary>
-        /// Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection"/> is synchronized (thread safe).
-        /// </summary>
-        /// <value></value>
-        /// <returns>Always false.
-        /// </returns>
-        public bool IsSynchronized
-        {
-            get { return false; }
-        }
 
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="T:System.Collections.IList"/> has a fixed size.
-        /// </summary>
-        /// <value></value>
-        /// <returns>Always false.
-        /// </returns>
-        public bool IsFixedSize
-        {
-            get { return false; }
-        }
+    /// Not supported.
+    /// </summary>
+    /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+    /// <param name="item">The object to insert into the <see cref="T:System.Collections.Generic.IList`1"/>.</param>
+    /// <exception cref="T:System.ArgumentOutOfRangeException">
+    /// 	<paramref name="index"/> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1"/>.
+    /// </exception>
+    /// <exception cref="T:System.NotSupportedException">
+    /// The <see cref="T:System.Collections.Generic.IList`1"/> is read-only.
+    public void Insert(int index, object value)
+    {
+        throw new NotSupportedException(READONLY_ERROR);
+    }
+
+
+    /// Not supported.
+    /// </summary>
+    /// <param name="index">The zero-based index of the item to remove.</param>
+    /// <exception cref="T:System.ArgumentOutOfRangeException">
+    /// 	<paramref name="index"/> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1"/>.
+    /// </exception>
+    /// <exception cref="T:System.NotSupportedException">
+    /// The <see cref="T:System.Collections.Generic.IList`1"/> is read-only.
+    public void RemoveAt(int index)
+    {
+        throw new NotSupportedException(READONLY_ERROR);
+    }
+
+
+    /// Not supported.
+    /// </summary>
+    /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1"/>.</param>
+    /// <returns>
+    /// true if <paramref name="item"/> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1"/>; otherwise, false. This method also returns false if <paramref name="item"/> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1"/>.
+    /// </returns>
+    /// <exception cref="T:System.NotSupportedException">
+    /// The <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
+    public void Remove(object value)
+    {
+        throw new NotSupportedException(READONLY_ERROR);
+    }
+
+
+    // this の先頭から全部を array[index] 以降にコピーする.
+    /// <param name="array">The one-dimensional <see cref="T:System.Array"/> that is the destination of the elements copied from <see cref="T:System.Collections.Generic.ICollection`1"/>. The <see cref="T:System.Array"/> must have zero-based indexing.</param>
+    /// <param name="arrayIndex">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// 	<paramref name="array"/> is null.
+    /// </exception>
+    /// <exception cref="T:System.ArgumentOutOfRangeException">
+    /// 	<paramref name="arrayIndex"/> is less than 0.
+    /// </exception>
+    /// <exception cref="T:System.ArgumentException">
+    /// 	<paramref name="array"/> is multidimensional.
+    /// -or-
+    /// <paramref name="arrayIndex"/> is equal to or greater than the length of <paramref name="array"/>.
+    /// -or-
+    /// The number of elements in the source <see cref="T:System.Collections.Generic.ICollection`1"/> is greater than the available space from <paramref name="arrayIndex"/> to the end of the destination <paramref name="array"/>.
+    /// -or-
+    /// Type <paramref name="T"/> cannot be cast automatically to the type of the destination <paramref name="array"/>.
+    public void CopyTo(Array array, int index)
+    {
+        if (array == null)
+            throw new ArgumentNullException("array");
+        if (array.Rank != 1)
+            throw new ArgumentException("array.Rank");
+        if (index < 0)
+            throw new ArgumentOutOfRangeException("index");
+        if (array.Length - index < Count)
+            throw new ArgumentException("array size");
+
+        object[] objects = array as object[];
+        int count = Count;
+        for (int i = 0; i < count; i++)
+            objects[index++] = this[i];
+    }
 
     #endregion
 
-        #region Paging
 
-        private readonly Dictionary<int, IList<T>> _pages = new Dictionary<int, IList<T>>();
-        private readonly Dictionary<int, DateTime> _pageTouchTimes = new Dictionary<int, DateTime>();
+    //////////////////////////////////////////////////////////////////
+    #region Page Caching
 
-        /// <summary>
-        /// Cleans up any stale pages that have not been accessed in the period dictated by PageTimeout.
-        /// </summary>
-        public void CleanUpPages()
-        {
+    /// Cleans up any stale pages that have not been accessed in the period dictated by PageTimeout.
+    private void CleanUpPages()
+    {
+        // TODO: Least Recently Used (LRU) で破棄すること。
+        //       Now との比較でしきい値は無いわー
+/*
             List<int> keys = new List<int>(_pageTouchTimes.Keys);
             foreach (int key in keys)
             {
@@ -453,8 +341,10 @@ public class VirtualizingCollection<T> : //IList<T>,
                     Trace.WriteLine("Removed Page: " + key);
                 }
             }
-        }
+    */
+    }
 
+/*
         /// <summary>
         /// Populates the page within the dictionary.
         /// </summary>
@@ -466,71 +356,35 @@ public class VirtualizingCollection<T> : //IList<T>,
             if ( _pages.ContainsKey(pageIndex) )
                 _pages[pageIndex] = page;
         }
+*/
 
-        /// <summary>
-        /// Makes a request for the specified page, creating the necessary slots in the dictionary,
-        /// and updating the page touch time.
-        /// </summary>
-        /// <param name="pageIndex">Index of the page.</param>
-        protected virtual void RequestPage(int pageIndex)
-        {
-            if (!_pages.ContainsKey(pageIndex))
-            {
-                _pages.Add(pageIndex, null);
-                _pageTouchTimes.Add(pageIndex, DateTime.Now);
-                Trace.WriteLine("Added page: " + pageIndex);
-                LoadPage(pageIndex);
-            }
-            else
-            {
-                _pageTouchTimes[pageIndex] = DateTime.Now;
-            }
+
+    /// Makes a request for the specified page, creating the necessary slots in the dictionary,
+    /// and updating the page touch time.
+    /// </summary>
+    /// <param name="pageIndex">Index of the page.</param>
+    private void RequestPage(int pageIndex)
+    {
+        if (!_pages.ContainsKey(pageIndex)) {
+            _pages.Add(pageIndex, null); // 非同期のため, ガードする. TODO: ロック
+            LoadPage(pageIndex);
+            Trace.WriteLine("Added page: " + pageIndex);
         }
-
-        #endregion
-
-        #region Load methods
-
-        /// <summary>
-        /// Loads the count of items.
-        /// </summary>
-        protected virtual void LoadCount()
-        {
-            Count = FetchCount();
+        else { 
+            _pageTouchTimes[pageIndex] = DateTime.Now;
         }
-
-        /// <summary>
-        /// Loads the page of items.
-        /// </summary>
-        /// <param name="pageIndex">Index of the page.</param>
-        protected virtual void LoadPage(int pageIndex)
-        {
-            PopulatePage(pageIndex, FetchPage(pageIndex));
-        }
-
-        #endregion
-
-        #region Fetch methods
-
-        /// <summary>
-        /// Fetches the requested page from the IItemsProvider.
-        /// </summary>
-        /// <param name="pageIndex">Index of the page.</param>
-        /// <returns></returns>
-        protected IList<T> FetchPage(int pageIndex)
-        {
-            return ItemsProvider.FetchRange(pageIndex*PageSize, PageSize);
-        }
-
-        /// <summary>
-        /// Fetches the count of itmes from the IItemsProvider.
-        /// </summary>
-        /// <returns></returns>
-        protected int FetchCount()
-        {
-            return ItemsProvider.FetchCount();
-        }
-
-        #endregion
     }
+
+    // TODO: フィルタ, 並べ替え.
+    protected virtual void LoadPage(int pageIndex)
+    {
+        // 同期する
+        _pages[pageIndex] =
+                 _itemsProvider.GetRange(pageIndex * _pageSize, _pageSize).Result;
+        _pageTouchTimes[pageIndex] = DateTime.Now;
+    }
+
+    #endregion
+}
+
 }

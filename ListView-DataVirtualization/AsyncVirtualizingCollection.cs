@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
@@ -12,29 +13,20 @@ namespace DataVirtualization
 public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
         INotifyCollectionChanged, INotifyPropertyChanged
 {
+    ///////////////////////////////////////////////////////////
     #region Constructors
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncVirtualizingCollection&lt;T&gt;"/> class.
-        /// </summary>
-        /// <param name="itemsProvider">The items provider.</param>
-        public AsyncVirtualizingCollection(IItemsProvider<T> itemsProvider)
-            : base(itemsProvider)
-        {
-            _synchronizationContext = SynchronizationContext.Current;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncVirtualizingCollection&lt;T&gt;"/> class.
+    /// Initializes a new instance of the <see cref="AsyncVirtualizingCollection&lt;T&gt;"/> class.
         /// </summary>
         /// <param name="itemsProvider">The items provider.</param>
         /// <param name="pageSize">Size of the page.</param>
-        public AsyncVirtualizingCollection(IItemsProvider<T> itemsProvider, int pageSize)
+    public AsyncVirtualizingCollection(IItemsProvider<T> itemsProvider,
+                                       int pageSize = 1000)
             : base(itemsProvider, pageSize)
-        {
+    {
             _synchronizationContext = SynchronizationContext.Current;
         }
-
+/*
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncVirtualizingCollection&lt;T&gt;"/> class.
         /// </summary>
@@ -46,8 +38,8 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
         {
             _synchronizationContext = SynchronizationContext.Current;
         }
-
-        #endregion
+*/
+    #endregion
 
         #region SynchronizationContext
 
@@ -153,13 +145,21 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
         /// <summary>
         /// Asynchronously loads the count of items.
         /// </summary>
-        protected override void LoadCount()
-        {
-            Count = 0;
-            IsLoading = true;
-            ThreadPool.QueueUserWorkItem(LoadCountWork);
+    public override int Count {
+        get {
+            if (_count == -1) {
+                _count = 0; // TODO: ロック
+                IsLoading = true;
+                var task = _itemsProvider.Count();
+                task.ContinueWith( t => {
+                    SynchronizationContext.Send(LoadCountCompleted, t.Result);
+                });
+            }
+            return _count;
         }
+    }
 
+/*
         /// <summary>
         /// Performed on background thread.
         /// </summary>
@@ -169,28 +169,34 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
             int count = FetchCount();
             SynchronizationContext.Send(LoadCountCompleted, count);
         }
+*/
 
         /// <summary>
         /// Performed on UI-thread after LoadCountWork.
         /// </summary>
         /// <param name="args">Number of items returned.</param>
-        private void LoadCountCompleted(object args)
-        {
-            Count = (int)args;
-            IsLoading = false;
-            FireCollectionReset();
-        }
+    private void LoadCountCompleted(object args)
+    {
+        _count = (int) args;
+        IsLoading = false;
+        FireCollectionReset();
+    }
+
 
         /// <summary>
         /// Asynchronously loads the page.
         /// </summary>
         /// <param name="index">The index.</param>
-        protected override void LoadPage(int index)
-        {
-            IsLoading = true;
-            ThreadPool.QueueUserWorkItem(LoadPageWork, index);
-        }
-
+    protected override void LoadPage(int pageIndex)
+    {
+        IsLoading = true;
+        var task = _itemsProvider.GetRange(pageIndex * _pageSize, _pageSize);
+        task.ContinueWith( t => {
+            SynchronizationContext.Send(LoadPageCompleted,
+                                new object[] { pageIndex, t.Result} );
+        });
+    }
+/*
         /// <summary>
         /// Performed on background thread.
         /// </summary>
@@ -199,23 +205,28 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
         {
             int pageIndex = (int)args;
             IList<T> page = FetchPage(pageIndex);
-            SynchronizationContext.Send(LoadPageCompleted, new object[]{ pageIndex, page });
+            SynchronizationContext.Send(LoadPageCompleted,
+                                    new object[]{ pageIndex, page });
         }
+*/
 
         /// <summary>
         /// Performed on UI-thread after LoadPageWork.
         /// </summary>
         /// <param name="args">object[] { int pageIndex, IList(T) page }</param>
-        private void LoadPageCompleted(object args)
-        {
-            int pageIndex = (int)((object[]) args)[0];
-            IList<T> page = (IList<T>)((object[])args)[1];
+    private void LoadPageCompleted(object args)
+    {
+        int pageIndex = (int) ((object[]) args)[0];
+        IList<T> page = (IList<T>) ((object[]) args)[1];
 
-            PopulatePage(pageIndex, page);
-            IsLoading = false;
-            FireCollectionReset();
-        }
+        _pages[pageIndex] = page;
+        _pageTouchTimes[pageIndex] = DateTime.Now;
 
-        #endregion
+        IsLoading = false;
+        FireCollectionReset();
     }
+
+    #endregion
+}
+
 }

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DataVirtualization
 {
@@ -20,20 +21,19 @@ public class DemoCustomerProvider : IItemsProvider<Customer>
         /// <param name="fetchDelay">The fetch delay.</param>
     public DemoCustomerProvider(int count, int fetchDelay)
     {
-            _count = count;
-            _fetchDelay = fetchDelay;
-        }
+        _count = count;
+        _fetchDelay = fetchDelay;
+    }
 
-        /// <summary>
-        /// Fetches the total number of items available.
-        /// </summary>
-        /// <returns></returns>
-        public int FetchCount()
-        {
-            Trace.WriteLine("FetchCount");
+    // @return The total number of items.
+    public Task<int> Count()
+    {
+        Trace.WriteLine("FetchCount");
+        return Task.Run(() => {
             Thread.Sleep(_fetchDelay);
-            return _count; 
-        }
+            return _count;
+        });
+    }
 
         /// <summary>
         /// Fetches a range of items.
@@ -41,18 +41,22 @@ public class DemoCustomerProvider : IItemsProvider<Customer>
         /// <param name="startIndex">The start index.</param>
         /// <param name="count">The number of items to fetch.</param>
         /// <returns></returns>
-        public IList<Customer> FetchRange(int startIndex, int count)
-        {
-            Trace.WriteLine("FetchRange: "+startIndex+","+count);
+    public Task<IList<Customer> > GetRange(int startIndex, int count)
+    {
+        Trace.WriteLine("FetchRange: "+startIndex+","+count);
+
+        return Task.Run( () => { 
             Thread.Sleep(_fetchDelay);
 
-            List<Customer> list = new List<Customer>();
-            for( int i=startIndex; i<startIndex+count; i++ )
-            {
+            IList<Customer> list = new List<Customer>();
+            for( int i = startIndex; i < startIndex + count; i++ ) {
                 Customer customer = new Customer {Id = i+1, Name = "Customer " + (i+1)};
                 list.Add(customer);
             }
             return list;
-        }
+        });
     }
+} // class DemoCustomerProvider
+
 }
+

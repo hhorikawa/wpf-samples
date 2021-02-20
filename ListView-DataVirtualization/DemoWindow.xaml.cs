@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Threading;
@@ -41,16 +41,17 @@ public partial class DemoWindow
         int pageTimeout = int.Parse(tbPageTimeout.Text);
 
         if ( rbNormal.IsChecked.Value ) {
-            DataContext = new List<Customer>(customerProvider.FetchRange(0, customerProvider.FetchCount()));
-            }
-            else if ( rbVirtualizing.IsChecked.Value )
-            {
-                DataContext = new VirtualizingCollection<Customer>(customerProvider, pageSize);
-            }
-            else if ( rbAsync.IsChecked.Value )
-            {
-                DataContext = new AsyncVirtualizingCollection<Customer>(customerProvider, pageSize, pageTimeout*1000);
-            }
+            // 同期する
+            DataContext = new List<Customer>(
+                    customerProvider.GetRange(0, customerProvider.Count().Result).Result);
+        }
+        else if ( rbVirtualizing.IsChecked.Value ) {
+            DataContext = new VirtualizingCollection<Customer>(customerProvider, pageSize);
+        }
+        else if ( rbAsync.IsChecked.Value ) {
+            DataContext = new AsyncVirtualizingCollection<Customer>(customerProvider, pageSize);
         }
     }
+}
+
 }
