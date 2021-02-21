@@ -22,8 +22,17 @@ WPF は多様な書き方が可能だが、かえってどのように書くべ�
 
 表形式で大量のデータを表示する場合、データ全部をメモリに載せると大変。Data virtualization で, 表示するのに必要なデータだけ view model から提供する。
 
-`ListView` のサンプル. `IList` から派生させたクラスで `this[]` と `GetEnumerator()` を実装する。
+`ListView` のサンプル. 非ジェネリックな `IList` から派生させたクラスで `this[]` と `GetEnumerator()` を実装する。
 
 
 Forked from <a href="https://www.codeproject.com/Articles/34405/WPF-Data-Virtualization">WPF: Data Virtualization - CodeProject</a>
+
+
+
+## dotnet-http2-sample
+
+ - `MenuItem.Command` や `Button.Command` の使い方。ググると `DelegateCommand` を使う例ばかりだが、妥当ではない。`CommandBindings` を使え。
+
+ - ヴァリデータから view model に状態を通知し, `ICommand.CanExecute` に反映させる方法。Behaviour を使うのが妥当だが、これもググると `System.Windows.Interactivity` を使う例ばかり出てくる。そんなの不要。
+
 
