@@ -36,3 +36,10 @@ Forked from <a href="https://www.codeproject.com/Articles/34405/WPF-Data-Virtual
  - ヴァリデータから view model に状態を通知し, `ICommand.CanExecute` に反映させる方法。Behaviour を使うのが妥当だが、これもググると `System.Windows.Interactivity` を使う例ばかり出てくる。そんなの不要。
 
 
+
+
+## wpf-sample-for-calling-winrt-apis
+
+UWP アプリ用の API "Windows Runtime APIs" (WinRT APIs) を呼び出す。
+
+
