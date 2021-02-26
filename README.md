@@ -25,7 +25,7 @@ WPF は多様な書き方が可能だが、かえってどのように書くべ�
 `ListView` のサンプル. 非ジェネリックな `IList` から派生させたクラスで `this[]` と `GetEnumerator()` を実装する。
 
 
-Forked from <a href="https://www.codeproject.com/Articles/34405/WPF-Data-Virtualization">WPF: Data Virtualization - CodeProject</a>
+Forked from <a href="https://www.codeproject.com/Articles/34405/WPF-Data-Virtualization">WPF: Data Virtualization - CodeProject</a> Original license: public domain
 
 
 
