@@ -1,0 +1,54 @@
+﻿<Window x:Class="wpf_datagrid.OrderEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:wpf_datagrid"
+        mc:Ignorable="d"
+        Title="OrderEditWindow" Height="450" Width="800">
+  <Window.DataContext>
+    <local:OrderEditViewModel />
+  </Window.DataContext>
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    
+    <Label Grid.Row="0">Order Number:</Label>
+    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OrderNo}" />
+
+    <GroupBox Header="Customer" Grid.Row="1" Grid.ColumnSpan="2">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <Label Grid.Row="0">Ship To:</Label>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ShipTo}" />
+        <Label Grid.Row="1">Email:</Label>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Email}" />
+        <Label Grid.Row="2">Gold?:</Label>
+        <ComboBox Grid.Row="2" Grid.Column="1" Text="{Binding Rank}" />
+      </Grid>
+    </GroupBox>
+
+    <Label Grid.Row="2">Status:</Label>
+    <ComboBox Grid.Row="2" Grid.Column="1"></ComboBox>
+
+    <Button Grid.Row="3">更新</Button>
+  </Grid>        
+</Window>

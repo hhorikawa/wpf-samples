@@ -18,9 +18,12 @@ using System.Diagnostics;
  *      ラスが多いが, 単に IList を実装するのでもよい.
  *
  * DataGrid で並び替え、フィルタしたいときは, コンテナオブジェクトを
- * CollectionView で wrap する. しかし、そもそも実データが全部ない場合は,
- * CollectionView の意味がない。
+ * ICollectionViewLiveShaping インタフェイスを実装する collection view で wrap
+ * する. 具体的には, 次のいずれかのクラス;
+ *   - System.Windows.Data.BindingListCollectionView
+ *   - System.Windows.Data.ListCollectionView
  *
+ * Collection view を使わなくてもよく (内部で自動的に wrap される),
  * ItemsSource に渡す具象クラスとしては, CLR List<T> よりも
  * ObservableCollection<T> が推奨される.
  *   See https://docs.microsoft.com/en-us/dotnet/desktop/wpf/advanced/optimizing-performance-data-binding
@@ -45,7 +48,8 @@ namespace DataVirtualization
     /// </remarks>
     /// <typeparam name="T"></typeparam>
 // このインスタンスを ItemsSource に設定している。
-// ListCollectionView に渡せるよう, 非ジェネリックな IList のみを実装する.
+// ListCollectionView で wrap できるよう, 非ジェネリックな IList のみを実装す
+// る.
 public class VirtualizingCollection<T> : IList
 {
     const string READONLY_ERROR = "Read Only";
@@ -370,7 +374,7 @@ public class VirtualizingCollection<T> : IList
             LoadPage(pageIndex);
             Trace.WriteLine("Added page: " + pageIndex);
         }
-        else { 
+        else {
             _pageTouchTimes[pageIndex] = DateTime.Now;
         }
     }

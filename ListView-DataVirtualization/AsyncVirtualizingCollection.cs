@@ -16,16 +16,15 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
     ///////////////////////////////////////////////////////////
     #region Constructors
 
-    /// Initializes a new instance of the <see cref="AsyncVirtualizingCollection&lt;T&gt;"/> class.
-        /// </summary>
-        /// <param name="itemsProvider">The items provider.</param>
+    /// Initializes a new instance.
+    /// <param name="itemsProvider">The items provider.</param>
         /// <param name="pageSize">Size of the page.</param>
     public AsyncVirtualizingCollection(IItemsProvider<T> itemsProvider,
                                        int pageSize = 1000)
             : base(itemsProvider, pageSize)
     {
-            _synchronizationContext = SynchronizationContext.Current;
-        }
+        _synchronizationContext = SynchronizationContext.Current;
+    }
 /*
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncVirtualizingCollection&lt;T&gt;"/> class.

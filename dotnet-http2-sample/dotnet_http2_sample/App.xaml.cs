@@ -16,18 +16,18 @@ public partial class App : Application
 {
     private void Application_Startup(object sender, StartupEventArgs e)
     {
-        // このウィンドウにおける, コマンドと実行する関数とを紐付ける.
+        // コマンドと実行する関数とを紐付ける.
         // "コマンド" として標準コマンドも使える。
         MyCommands.CommandBindings.Add(
                 new CommandBinding(ApplicationCommands.Close, FileExit));
-        
+
         var window = new MainWindow();
         window.Show();
     }
 
     void FileExit( object sender, ExecutedRoutedEventArgs e )
     {
-        throw new NotImplementedException();
+        Application.Current.Shutdown();
     }
 
 } // class App

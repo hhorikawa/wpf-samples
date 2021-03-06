@@ -1,3 +1,4 @@
+<!-- -*- mode:xml -*- -->
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:dotnet_http2_sample"
@@ -22,19 +23,20 @@
     </ControlTemplate>
   </Window.Resources>
 <!-- CommandBindings は dependency property ではない。view model に bind で
-  きない 
+  きない
   => コンストラクタで設定する。 -->
-  
+
   <!-- アプリケーションでは, DockPanel が基本 -->
-  <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <DockPanel LastChildFill="True" HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch">
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="ファイル(_F)">
         <MenuItem Header="終了(_X)" Command="ApplicationCommands.Close" />
       </MenuItem>
     </Menu>
     <StatusBar DockPanel.Dock="Bottom">
-<!-- <StatusBar> がコンテナになっているので、単に子アイテムを並べればよい. 
-  左下と右下のように、アイテム表示のレイアウトを調整したいときは, 
+<!-- <StatusBar> がコンテナになっているので、単に子アイテムを並べればよい.
+  左下と右下のように、アイテム表示のレイアウトを調整したいときは,
   <StatusBar.ItemsPanel> で指定する. -->
       <StatusBar.ItemsPanel>
         <ItemsPanelTemplate>
@@ -73,7 +75,7 @@
         <Label Grid.Column="0" Content="URL:" />
 <!-- Validator から view model へのエラー通知には behaviour を使う -->
         <TextBox Grid.Column="1" Name="urlBox" Height="23" Margin="0,0,10,0"
-                 Validation.ErrorTemplate="{StaticResource errorTemplate}" 
+                 Validation.ErrorTemplate="{StaticResource errorTemplate}"
                  local:ValidationBehavior.HasErrors="{Binding HasErrors}"
                  KeyDown="urlBox_KeyDown" >
           <TextBox.Text>
@@ -91,9 +93,9 @@
                 Command="{x:Static local:MyCommands.FetchCommand}" />
       </Grid>
       <Label Grid.Row="1" Content="Response" />
-      <TextBox Grid.Row="2" Text="{Binding ResponseHeader}" 
+      <TextBox Grid.Row="2" Text="{Binding ResponseHeader}"
              AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" />
-      <TextBox Grid.Row="3" Text="{Binding ResponseBody}" 
+      <TextBox Grid.Row="3" Text="{Binding ResponseBody}"
              AcceptsReturn="True" TextWrapping="Wrap" Margin="0,8,0,0" VerticalScrollBarVisibility="Visible" />
     </Grid>
   </DockPanel>
