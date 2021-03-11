@@ -1,7 +1,10 @@
 
 # wpf-validation-rules
 
-WPF は, XAML で view を作る。C# のコードを宣言的に書くもの。XAML で書けるものは、できるだけ XAML で書くようにする。
+WPF は, XAML で view を作る。C# のコードを宣言的に書くもの。全部 C# で書くこともできるが、XAML で書けるものは、できるだけ XAML で書くようにする。
+
+
+## View - view model
 
 View model との binding が必須。View に表示している内容を保持する。`FrameworkElement.DataContext` プロパティで紐付ける。原則として view (ウィンドウ、各コントロールなど) と view model は 1:1 の関係になる。
 
