@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +8,7 @@ namespace wpf_combobox
 {
 
 // フォームデータ検証は ValidationRule クラスから派生させる
+// BindingGroup#CommitEdit() のときに呼び出される
 internal class MyViewValidator: ValidationRule
 {
     public override ValidationResult Validate(object value,
@@ -37,8 +38,7 @@ internal class MyViewValidator: ValidationRule
         }
         
         if ( Convert.ToInt32(combo1) == Convert.ToInt32(combo2) ) { 
-            MessageBox.Show("Do not be same");
-            return new ValidationResult(false, "Must not be same");
+            return new ValidationResult(false, "Combo1 & 2 must not be same");
         }
 
         // OK.

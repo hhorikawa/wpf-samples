@@ -1,4 +1,4 @@
-﻿// -*- mode:csharp -*-
+// -*- mode:csharp -*-
 
 #if USE_INPC
 using System;
@@ -193,7 +193,10 @@ public partial class MainWindow : Window
 #endif
     }
 
-    private void DoneButton_Click(object sender, RoutedEventArgs e)
+
+    // [Done] ボタンクリック
+    // -> Command を使うべきだが、ここでは手抜き。
+    void DoneButton_Click(object sender, RoutedEventArgs e)
     {
         MyViewModel vm = (MyViewModel) DataContext;
         gridView.BindingGroup.CommitEdit();
@@ -201,6 +204,12 @@ public partial class MainWindow : Window
             // [OK] ボタンのときのみ検証するときは, BindingGroup#CancelEdit() +  
             // BindingGroup#BeginEdit() でよい. リアルタイムで更新しているときは,
             // すでに viewmodel の値が変わっているので, 手で戻さないといけない.
+            string msg = "";
+            foreach (var s in Validation.GetErrors(gridView)) {
+                msg += s.ErrorContent;
+            }
+            MessageBox.Show(msg);
+            errorMessage.Text = msg;
         }
 #if USE_INPC
         // 選ばれていないときは, 値 = 0

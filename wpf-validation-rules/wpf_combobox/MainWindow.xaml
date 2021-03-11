@@ -1,4 +1,4 @@
-﻿<!-- -*- mode:xml -*- -->
+<!-- -*- mode:xml -*- -->
 <!-- x:Class で紐づけるクラスを指定 -->
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -30,8 +30,8 @@
   </Window.Resources>
 
   <Grid Name="gridView">
-    <!-- BindingGroup を作ると, 内側のすべてXAML要素の Binding 
-      [UpdateSourceTrigger=default のもの] ついて, source (viewmodel) 
+    <!-- BindingGroup を作ると, 内側のすべてXAML要素で Binding が
+      [UpdateSourceTrigger=default のもの] について, source (viewmodel) 
       への変更通知が, BindingGroup#CommitEdit() まで保留される.
   See https://social.technet.microsoft.com/wiki/contents/articles/21993.wpf-the-myth-of-bindinggroup.aspx
     -->
@@ -69,11 +69,14 @@
               SelectedValuePath="Key" DisplayMemberPath="Value" 
               SelectedValue="{Binding Combo2, UpdateSourceTrigger=PropertyChanged}" 
               HorizontalAlignment="Left" Margin="85,99,0,0" VerticalAlignment="Top" Width="120"/>
-    <Button Content="Button only banana" IsEnabled="{Binding ButtonEnabled}" 
-            HorizontalAlignment="Left" Margin="260,62,0,0" VerticalAlignment="Top" Width="75"/>
-    <Button Content="Done" HorizontalAlignment="Left" Margin="204,200,0,0" VerticalAlignment="Top" Width="75" 
-            Click="DoneButton_Click"/>
-    <Label HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top">数値(>= 1):</Label>
+
+    <TextBlock HorizontalAlignment="Left" Margin="260,23,0,0" TextWrapping="Wrap"
+               VerticalAlignment="Top" Height="34" Width="90">コンボボックスの値変更に追従</TextBlock>
+    <Button Content="Enabled only banana" IsEnabled="{Binding ButtonEnabled}" 
+            HorizontalAlignment="Left" Margin="260,62,0,0" VerticalAlignment="Top" Width="120" />
+    
+    <Label HorizontalAlignment="Left" Margin="10,138,0,0"
+           VerticalAlignment="Top">数値(>= 1):</Label>
     <!-- 記法: XAML 要素の属性は, XAML要素の属性として書いてもいいし, 子要素と
       して書いてもよい. マジか -->
     <TextBox Name="numberBox" HorizontalAlignment="Left" Height="23" Margin="85,141,0,0" 
@@ -91,7 +94,13 @@
         </Binding>
       </TextBox.Text>
     </TextBox>
-    <TextBlock HorizontalAlignment="Left" Margin="260,23,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="34" Width="90"><Run Text="コンボボックス"/><Run Text="の"/><LineBreak/><Run Text="値変更に追従"/></TextBlock>
-    <TextBlock HorizontalAlignment="Left" Margin="204,225,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="複数のコントロールで"/><Run Text="値"/><Run Text="検証"/></TextBlock>
+
+    <Button Content="Done" HorizontalAlignment="Left" Margin="204,200,0,0"
+            VerticalAlignment="Top" Width="75" IsDefault="True"
+            Click="DoneButton_Click" />
+    <TextBlock HorizontalAlignment="Left" Margin="204,225,0,0" TextWrapping="Wrap"
+               VerticalAlignment="Top">複数のコントロールで値検証</TextBlock>
+    <TextBlock Margin="0,260,0.333,72.667" Text="" Name="errorMessage">
+    </TextBlock>
   </Grid>
 </Window>

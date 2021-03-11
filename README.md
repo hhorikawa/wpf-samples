@@ -45,3 +45,8 @@ Forked from <a href="https://www.codeproject.com/Articles/34405/WPF-Data-Virtual
 UWP アプリ用の API "Windows Runtime APIs" (WinRT APIs) を呼び出す。
 
 
+## DataGrid-DataVirtualization
+
+`DataGrid` は列ヘッダのクリックでソートできる。Data virtualization とどのように組み合わせるか。
+
+
