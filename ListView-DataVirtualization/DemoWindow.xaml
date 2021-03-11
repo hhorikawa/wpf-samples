@@ -3,11 +3,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Data Virtualization Demo - By Paul McClean" Height="600" Width="600">
-    
+
   <Window.Resources>
     <!-- キモの ListView から参照される -->
     <Style x:Key="lvStyle" TargetType="{x:Type ListView}">
-<!-- DataGrid の場合, VirtualizingStackPanel → DataGridRowsPresenter -->      
+<!-- DataGrid の場合, VirtualizingStackPanel → DataGridRowsPresenter -->
       <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
 <!-- VirtualizationMode 値は "Recycling", "Standard" のみ。必ず "Recycling".
   -->
@@ -42,16 +42,16 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-    </Window.Resources>
-    
-    <Grid Margin="5">
+  </Window.Resources>
+
+  <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-       
+
         <GroupBox Grid.Row="0" Header="ItemsProvider">
             <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                 <TextBlock Text="Number of items:" Margin="5" TextAlignment="Right" VerticalAlignment="Center"/>
@@ -71,7 +71,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                     <TextBlock Text="Page size:" Margin="5" TextAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox x:Name="tbPageSize" Margin="5" Text="100" Width="60" VerticalAlignment="Center"/>
+                    <TextBox x:Name="tbPageSize" Margin="5" Text="500" Width="60" VerticalAlignment="Center"/>
                     <TextBlock Text="Page timeout (s):" Margin="5" TextAlignment="Right" VerticalAlignment="Center"/>
                     <TextBox x:Name="tbPageTimeout" Margin="5" Text="30" Width="60" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -98,15 +98,12 @@
                     </EventTrigger>
                 </Rectangle.Triggers>
             </Rectangle>
-            
+
             <TextBlock Margin="5" VerticalAlignment="Center" FontStyle="Italic" Text="Pause in animation indicates UI thread stalled."/>
-            
+
         </StackPanel>
 <!-- DataGrid ではない -->
     <ListView Grid.Row="3" Margin="5" Style="{DynamicResource lvStyle}"/>
-       
+
   </Grid>
 </Window>
-
-
-    

@@ -19,11 +19,11 @@ using System.Diagnostics;
  *
  * DataGrid で並び替え、フィルタしたいときは, コンテナオブジェクトを
  * ICollectionViewLiveShaping インタフェイスを実装する collection view で wrap
- * する. 具体的には, 次のいずれかのクラス;
+ * する [.NET 4.5以降]. 具体的には, 次のいずれかのクラス;
  *   - System.Windows.Data.BindingListCollectionView
  *   - System.Windows.Data.ListCollectionView
  *
- * Collection view を使わなくてもよく (内部で自動的に wrap される),
+ * Collection view を使わなくてもよいが (内部で自動的に wrap される),
  * ItemsSource に渡す具象クラスとしては, CLR List<T> よりも
  * ObservableCollection<T> が推奨される.
  *   See https://docs.microsoft.com/en-us/dotnet/desktop/wpf/advanced/optimizing-performance-data-binding
@@ -48,7 +48,7 @@ namespace DataVirtualization
     /// </remarks>
     /// <typeparam name="T"></typeparam>
 // このインスタンスを ItemsSource に設定している。
-// ListCollectionView で wrap できるよう, 非ジェネリックな IList のみを実装す
+// ListCollectionView で wrap されるよう, 非ジェネリックな IList のみを実装す
 // る.
 public class VirtualizingCollection<T> : IList
 {

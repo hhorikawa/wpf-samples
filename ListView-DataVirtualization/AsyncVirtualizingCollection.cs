@@ -116,28 +116,25 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
         #endregion
 
 
-        private bool _isLoading;
+    private bool _isLoading;
         /// <summary>
         /// Gets or sets a value indicating whether the collection is loading.
         /// </summary>
         /// <value>
         /// 	<c>true</c> if this collection is loading; otherwise, <c>false</c>.
         /// </value>
-        public bool IsLoading
-        {
-            get
-            {
+    public bool IsLoading {
+        get {
                 return _isLoading;
-            }
-            set
-            {
+        }
+        set {
                 if ( value != _isLoading )
                 {
                     _isLoading = value;
                 }
                 FirePropertyChanged("IsLoading");
-            }
         }
+    }
 
         #region Load overrides
 

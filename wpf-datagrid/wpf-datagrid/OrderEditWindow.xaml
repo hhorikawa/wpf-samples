@@ -1,11 +1,11 @@
-﻿<Window x:Class="wpf_datagrid.OrderEditWindow"
+<Window x:Class="wpf_datagrid.OrderEditWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:wpf_datagrid"
         mc:Ignorable="d"
-        Title="OrderEditWindow" Height="450" Width="800">
+        Title="OrderEditWindow" Height="300" Width="600">
   <Window.DataContext>
     <local:OrderEditViewModel />
   </Window.DataContext>
@@ -49,6 +49,6 @@
     <Label Grid.Row="2">Status:</Label>
     <ComboBox Grid.Row="2" Grid.Column="1"></ComboBox>
 
-    <Button Grid.Row="3">更新</Button>
+    <Button Grid.Row="3" Grid.ColumnSpan="2" Width="40" IsDefault="True">更新</Button>
   </Grid>        
 </Window>

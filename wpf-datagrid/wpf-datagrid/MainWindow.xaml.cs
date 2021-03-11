@@ -29,7 +29,7 @@ public class Order
     public string OrderNumber { get; set; }
 
     ///////////////////////
-    // Customer 
+    // Customer
     public string ShipTo { get; set; }
 
     public string Email { get; set; }
@@ -43,34 +43,45 @@ public class Order
 }
 
 
-// DataGrid の ItemsSource に bind するには, INotifyCollectionChanged 
-// interface を実装するか, ObservableCollection<T> class から派生させる. CLR 
-// List<T> class は推奨されない.
-//
-// 非ジェネリックな IList から派生していること。ObservableCollection<T> は条件
-// を満たす.
-// 
-// ソートさせたいときは, ICollectionViewLiveShaping インタフェイスを実装するク
-// ラスでデータコレクションを wrapし、これを ItemsSource に bind する。
-// 候補は次の3つだけ;
-//    - System.Windows.Controls.ItemCollection
-//            > WPF 各コントロールの内容を保持する。目的が違う。
-//    - System.Windows.Data.BindingListCollectionView: CollectionView から派生
-//            > データのコンテナは IBindingList を実装. 
-//    - System.Windows.Data.ListCollectionView: CollectionView から派生
-//            > データのコンテナは IList を実装.
+/*
+  DataGrid の ItemsSource には, INotifyCollectionChanged interface を実装する
+  か, ObservableCollection<T> class かその派生クラスを bind する。
+  CLR List<T> class は推奨されない.
+  条件: 非ジェネリックな IList から派生していること。ObservableCollection<T> は
+        条件を満たす.
+  => この場合, 内部でデフォルト collection view が使われる
+
+  ソートさせたいときは, .NET 4.0 までと .NET 4.5 以降で異なる。
+  [.NET 4.0まで]
+  CollectionViewSource class (の View プロパティ?) を ItemsSource に bind す
+  る。
+  その Source プロパティにデータコレクションを set する。
+  <CollectionViewSource.SortDescriptions> で並べ替えフィールドを指定
+
+  [.NET 4.5以降]
+  ICollectionViewLiveShaping インタフェイスを実装する collection view クラスで
+  データコレクションを wrapし、collection view を ItemsSource に bind する。
+  候補は次の3つ;
+    - System.Windows.Controls.ItemCollection
+            > WPF 各コントロールの内容を保持する。目的が違う。
+    - System.Windows.Data.BindingListCollectionView: CollectionView から派生
+            > データのコンテナは IBindingList を実装.
+    - System.Windows.Data.ListCollectionView: CollectionView から派生
+            > データのコンテナは IList を実装.
+  CollectionView.SortDescriptions property で並べ替えを指定。
+ */
 class MainViewModel : DependencyObject
 {
-    public static readonly DependencyProperty GridItemsProperty = 
+    public static readonly DependencyProperty GridItemsProperty =
             DependencyProperty.Register("GridItems",
                                     typeof(ListCollectionView),
                                     typeof(MainViewModel));
 
     // コンストラクタ
-    public MainViewModel() 
+    public MainViewModel()
     {
         MyCommands.CommandBindings.Add(
-                    new CommandBinding(MyCommands.OrderDetail, 
+                    new CommandBinding(MyCommands.OrderDetail,
                                        OrderDetailExecuted, CanOrderDetail));
     }
 
@@ -122,16 +133,16 @@ public partial class MainWindow : Window
         // TODO: 適当に1,000件作る
         var dataTable = new ObservableCollection<Order>() {
                 new Order() {OrderNumber = "a1", ShipTo = "2田中太郎",
-                    Email = "3abc@example.com", Grade = 0, 
+                    Email = "3abc@example.com", Grade = 0,
                     Status = Order.OrderStatus.Processing},
                 new Order() {OrderNumber = "a2", ShipTo = "3田中太郎",
-                    Email = "4abc@example.com", Grade = 0, 
+                    Email = "4abc@example.com", Grade = 0,
                     Status = Order.OrderStatus.Processing},
                 new Order() {OrderNumber = "a3", ShipTo = "4田中太郎",
-                    Email = "1abc@example.com", Grade = 0, 
+                    Email = "1abc@example.com", Grade = 0,
                     Status = Order.OrderStatus.Processing},
                 new Order() {OrderNumber = "a4", ShipTo = "1田中太郎",
-                    Email = "2abc@example.com", Grade = 0, 
+                    Email = "2abc@example.com", Grade = 0,
                     Status = Order.OrderStatus.Processing},
             };
         dc.SetValue(MainViewModel.GridItemsProperty, new ListCollectionView(dataTable));

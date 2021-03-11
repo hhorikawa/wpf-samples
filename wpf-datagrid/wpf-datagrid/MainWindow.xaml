@@ -1,4 +1,4 @@
-﻿<!-- -*- mode:xml -*- -->
+<!-- -*- mode:xml -*- -->
 <!-- x:Class で紐づけるクラスを指定.
   ステイタスバーを表示するときは, ResizeMode="CanResizeWithGrip" がよい. -->
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -75,7 +75,9 @@
           <DataGridCheckBoxColumn Header="Gold?" Binding="{Binding Grade}" />
           <!-- 値と表示をプロパティ名で指定 -->
           <DataGridComboBoxColumn Header="Status" ItemsSource="{Binding Source={x:Static local:Order.StatusList}, Mode=OneWay}" 
-                                  SelectedValuePath="Key" DisplayMemberPath="Value" SelectedValueBinding="{Binding Status}" />
+                                  SelectedValuePath="Key" DisplayMemberPath="Value"
+                                  SelectedValueBinding="{Binding Status}" />
+          <!-- DataGridTemplateColumn には CanUserSort プロパティがない。ソート不可 -->
           <DataGridTemplateColumn Header="Command">
             <DataGridTemplateColumn.CellTemplate>
               <DataTemplate>
