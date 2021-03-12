@@ -10,7 +10,7 @@ trim_trailing_whitespace = true
 
 [*.cs]
 indent_size = 4
-namespace_indentation = false
+csharp_indent_inside_namespace = false
 
 [*.{xml,html,xaml}]
 indent_size = 2

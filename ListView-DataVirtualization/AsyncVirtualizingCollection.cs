@@ -14,7 +14,7 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
         INotifyCollectionChanged, INotifyPropertyChanged
 {
     ///////////////////////////////////////////////////////////
-    #region Constructors
+    // Constructors
 
     /// Initializes a new instance.
     /// <param name="itemsProvider">The items provider.</param>
@@ -25,36 +25,20 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
     {
         _synchronizationContext = SynchronizationContext.Current;
     }
-/*
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncVirtualizingCollection&lt;T&gt;"/> class.
-        /// </summary>
-        /// <param name="itemsProvider">The items provider.</param>
-        /// <param name="pageSize">Size of the page.</param>
-        /// <param name="pageTimeout">The page timeout.</param>
-        public AsyncVirtualizingCollection(IItemsProvider<T> itemsProvider, int pageSize, int pageTimeout)
-            : base(itemsProvider, pageSize, pageTimeout)
-        {
-            _synchronizationContext = SynchronizationContext.Current;
-        }
-*/
-    #endregion
 
-        #region SynchronizationContext
 
-        private readonly SynchronizationContext _synchronizationContext;
+    private readonly SynchronizationContext _synchronizationContext;
 
         /// <summary>
         /// Gets the synchronization context used for UI-related operations. This is obtained as
         /// the current SynchronizationContext when the AsyncVirtualizingCollection is created.
         /// </summary>
         /// <value>The synchronization context.</value>
-        protected SynchronizationContext SynchronizationContext
-        {
-            get { return _synchronizationContext; }
-        }
+    protected SynchronizationContext UiThreadContext
+    {
+        get { return _synchronizationContext; }
+    }
 
-        #endregion
 
         #region INotifyCollectionChanged
 
@@ -148,7 +132,7 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
                 IsLoading = true;
                 var task = _itemsProvider.Count();
                 task.ContinueWith( t => {
-                    SynchronizationContext.Send(LoadCountCompleted, t.Result);
+                    UiThreadContext.Send(LoadCountCompleted, t.Result);
                 });
             }
             return _count;
@@ -188,7 +172,8 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
         IsLoading = true;
         var task = _itemsProvider.GetRange(pageIndex * _pageSize, _pageSize);
         task.ContinueWith( t => {
-            SynchronizationContext.Send(LoadPageCompleted,
+            // Dictionary<> が thread-safe ではないので, UI thread でコールバック
+            UiThreadContext.Send(LoadPageCompleted,
                                 new object[] { pageIndex, t.Result} );
         });
     }
@@ -206,8 +191,7 @@ public class AsyncVirtualizingCollection<T> : VirtualizingCollection<T>,
         }
 */
 
-        /// <summary>
-        /// Performed on UI-thread after LoadPageWork.
+    // Performed on UI-thread after LoadPageWork.
         /// </summary>
         /// <param name="args">object[] { int pageIndex, IList(T) page }</param>
     private void LoadPageCompleted(object args)

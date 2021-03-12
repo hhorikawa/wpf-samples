@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -64,10 +64,8 @@ public partial class MainWindow : Window
       //});
     }
 
-#if DEBUG
-    async
-#endif
-    private void Window_Loaded(object sender, RoutedEventArgs e)
+
+    void Window_Loaded(object sender, RoutedEventArgs e)
     {
         ClearRubyText();
 

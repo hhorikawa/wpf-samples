@@ -58,6 +58,7 @@ public class VirtualizingCollection<T> : IList
     protected readonly IItemsProvider<T> _itemsProvider;
 
     // 疎な配列.
+    // Dictionary<> は thread-safe ではない.
     protected readonly Dictionary<int, IList<T> > _pages =
                                         new Dictionary<int, IList<T> >();
 
@@ -71,7 +72,7 @@ public class VirtualizingCollection<T> : IList
 
 
     ///////////////////////////////////////////////////////////
-    #region Constructors
+    // Constructors
 
     /// Initializes a new instance of the <see cref="VirtualizingCollection&lt;T&gt;"/> class.
         /// </summary>
@@ -89,11 +90,9 @@ public class VirtualizingCollection<T> : IList
         _pageSize = pageSize;
     }
 
-    #endregion
-
 
     ///////////////////////////////////////////////////////////
-    #region Public Properties
+    // Public Properties
 
     protected int _count = -1;
         /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"/>.
@@ -180,8 +179,6 @@ public class VirtualizingCollection<T> : IList
     public bool IsSynchronized {
         get { return false; }
     }
-
-    #endregion
 
 
     //////////////////////////////////////////////////////////////////

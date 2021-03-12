@@ -16,7 +16,7 @@ public partial class DemoWindow
     public DemoWindow()
     {
             InitializeComponent();
-            
+
             // use a timer to periodically update the memory usage
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 1);
@@ -29,7 +29,8 @@ public partial class DemoWindow
             tbMemory.Text = string.Format("{0:0.00} MB", GC.GetTotalMemory(true)/1024.0/1024.0);
         }
 
-    private void refreshButton_Click(object sender, RoutedEventArgs e)
+
+    void refreshButton_Click(object sender, RoutedEventArgs e)
     {
         // create the demo items provider according to specified parameters
         int numItems = int.Parse(tbNumItems.Text);
@@ -40,6 +41,7 @@ public partial class DemoWindow
         int pageSize = int.Parse(tbPageSize.Text);
         int pageTimeout = int.Parse(tbPageTimeout.Text);
 
+        // ListView.ItemsSource プロパティに設定
         if ( rbNormal.IsChecked.Value ) {
             // 同期する
             DataContext = new List<Customer>(
@@ -52,6 +54,6 @@ public partial class DemoWindow
             DataContext = new AsyncVirtualizingCollection<Customer>(customerProvider, pageSize);
         }
     }
-}
+} // class DemoWindow
 
 }

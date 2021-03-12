@@ -14,7 +14,6 @@ public class DemoCustomerProvider : IItemsProvider<Customer>
     private readonly int _count;
     private readonly int _fetchDelay;
 
-        /// <summary>
         /// Initializes a new instance of the <see cref="DemoCustomerProvider"/> class.
         /// </summary>
         /// <param name="count">The count.</param>
@@ -35,7 +34,6 @@ public class DemoCustomerProvider : IItemsProvider<Customer>
         });
     }
 
-        /// <summary>
         /// Fetches a range of items.
         /// </summary>
         /// <param name="startIndex">The start index.</param>
@@ -50,7 +48,8 @@ public class DemoCustomerProvider : IItemsProvider<Customer>
 
             IList<Customer> list = new List<Customer>();
             for( int i = startIndex; i < startIndex + count; i++ ) {
-                Customer customer = new Customer {Id = i+1, Name = "Customer " + (i+1)};
+                Customer customer = new Customer {
+                                        Id = i+1, Name = "Customer " + (i+1)};
                 list.Add(customer);
             }
             return list;

@@ -1,11 +1,11 @@
-﻿
+
 namespace DataVirtualization
 {
     /// <summary>
     /// Demo customer object.
     /// </summary>
-    public class Customer
-    {
+public class Customer
+{
         /// <summary>
         /// Gets or sets the id.
         /// </summary>
@@ -21,6 +21,7 @@ namespace DataVirtualization
         /// <summary>
         /// Some dummy data to give the instance a bigger memory footprint.
         /// </summary>
-        private byte[] data = new byte[100];
-    }
+    private byte[] data = new byte[100];
+}
+
 }
