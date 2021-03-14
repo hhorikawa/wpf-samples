@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +21,13 @@ static class MyCommands
             new RoutedUICommand("新しい注文", "NewOrder", typeof(MyCommands));
     public static RoutedUICommand NewOrder { 
         get { return _newOrder; }
+    }
+
+    // MainWindow -> [一覧表示] button
+    static readonly RoutedUICommand _listOrders = 
+            new RoutedUICommand("受注の一覧", "ListOrders", typeof(MyCommands));
+    public static RoutedUICommand ListOrders { 
+        get { return _listOrders; }
     }
 
     // MainWindow -> [詳細] button

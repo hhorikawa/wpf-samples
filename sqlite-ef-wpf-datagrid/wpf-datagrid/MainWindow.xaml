@@ -57,7 +57,8 @@
       <StackPanel Grid.Row="0" Orientation="Horizontal">
         <Label >Filter:</Label>
         <TextBlock>●●</TextBlock>
-        <Button Content="New..." Command="{x:Static local:MyCommands.NewOrder}" />
+        <Button Content="一覧表示" Command="{x:Static local:MyCommands.ListOrders}" />
+        <Button Content="New order..." Command="{x:Static local:MyCommands.NewOrder}" />
       </StackPanel>
       <!-- いつでも AutoGenerateColumns="False" で, 列を自分でコントロール -->
       <DataGrid Grid.Row="1" Name="dataGrid" ItemsSource="{Binding GridItems}" 
@@ -66,15 +67,15 @@
         <DataGrid.Columns>
     <!-- この内側での binding は, ItemsSource で指定したオブジェクトのプロパ
       ティを指す -->
-          <DataGridTextColumn Header="Order#" Binding="{Binding OrderNumber}" />
-          <DataGridTextColumn Header="発送先"  Binding="{Binding ShipTo}"  />
+          <DataGridTextColumn Header="Order#" Binding="{Binding Id}" />
+          <DataGridTextColumn Header="発送先"  Binding="{Binding CustomerShipTo}"  />
           <!-- Uri with the Binding prop. and the text with the ContentBinding prop. -->
           <DataGridHyperlinkColumn Header="Email" 
-                                   Binding="{Binding Email, Converter={StaticResource EmailConverter}, Mode=OneWay}" 
-                                   ContentBinding="{Binding Email}" />
-          <DataGridCheckBoxColumn Header="Gold?" Binding="{Binding Grade}" />
+                                   Binding="{Binding Customer.Email, Converter={StaticResource EmailConverter}, Mode=OneWay}" 
+                                   ContentBinding="{Binding Customer.Email}" />
+          <DataGridCheckBoxColumn Header="Gold?" Binding="{Binding Customer.Grade}" />
           <!-- 値と表示をプロパティ名で指定 -->
-          <DataGridComboBoxColumn Header="Status" ItemsSource="{Binding Source={x:Static local:Order.StatusList}, Mode=OneWay}" 
+          <DataGridComboBoxColumn Header="Status" ItemsSource="{Binding Source={x:Static local:SalesOrder.StatusList}, Mode=OneWay}" 
                                   SelectedValuePath="Key" DisplayMemberPath="Value"
                                   SelectedValueBinding="{Binding Status}" />
           <!-- DataGridTemplateColumn には CanUserSort プロパティがない。ソート不可 -->
