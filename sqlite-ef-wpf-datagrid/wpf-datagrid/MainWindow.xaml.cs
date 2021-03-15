@@ -45,36 +45,45 @@ class MainViewModel : DependencyObject
                                     typeof(System.Collections.IList),
                                     typeof(MainViewModel));
 
-    // コンストラクタ
-    public MainViewModel()
+    static MainViewModel()
     {
+        // 2回 Add() しても、最初のほうが優先される。
+        // なので、コンストラクタで Add() しても意味ない.
         MyCommands.CommandBindings.Add(
                 new CommandBinding(MyCommands.OrderDetail,
                                        OrderDetailExecuted, CanOrderDetail));
-
         MyCommands.CommandBindings.Add(
                 new CommandBinding(MyCommands.ListOrders, ListOrdersExecuted));
     }
 
+
+    // コンストラクタ
+    public MainViewModel()
+    {
+    }
+
     // 注文の詳細...
-    void OrderDetailExecuted(object sender, ExecutedRoutedEventArgs e)
+    static void OrderDetailExecuted(object sender, ExecutedRoutedEventArgs e)
     {
         throw new NotImplementedException();
     }
 
-    void CanOrderDetail(object sender, CanExecuteRoutedEventArgs e)
+    static void CanOrderDetail(object sender, CanExecuteRoutedEventArgs e)
     {
         e.CanExecute = true;
     }
 
-    void ListOrdersExecuted(object sender, ExecutedRoutedEventArgs e)
+    static void ListOrdersExecuted(object sender, ExecutedRoutedEventArgs e)
     {
+        MainWindow view = (MainWindow) sender;
+        MainViewModel self = (MainViewModel) view.DataContext;
+
         Model1 model = new Model1();
         var query = (from t in model.SalesOrders
                     orderby t.Id
                     select t).Take(500);
         var list = query.ToList();
-        SetValue(GridItemsProperty, list);
+        self.SetValue(GridItemsProperty, list);
     }
 }
 
