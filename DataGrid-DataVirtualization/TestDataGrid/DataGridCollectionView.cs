@@ -85,6 +85,14 @@ public class DataGridCollectionView<T> : ListCollectionView
 
         // 非同期 load 対策
         var page_data = _dataRows[page_num];
+/* default(T) にすると、次のエラーが発生
+System.ArgumentNullException: 値を Null にすることはできません。
+パラメーター名:key
+   場所 System.Collections.Generic.Dictionary`2.FindEntry(TKey key)
+   場所 System.Collections.Generic.Dictionary`2.TryGetValue(TKey key, TValue& value)
+   場所 System.Windows.Controls.DataGridItemAttachedStorage.TryGetValue(Object item, DependencyProperty property, Object& value)
+エラーメッセージから原因が掴みにくく、凶悪.
+ */
         return page_data == null ? _make_row() : page_data[index % _pageSize];
     }
 
