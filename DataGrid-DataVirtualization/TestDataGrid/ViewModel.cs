@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,10 +21,10 @@ class MyViewModel : DependencyObject // INotifyPropertyChanged
     Random rnd = new Random();
         #endregion
 
-    #region Constructors
-        /// <summary>
-        /// Public constructor
-        /// </summary>
+
+    ////////////////////////////////////////////////////////////
+    // Constructors
+
     public MyViewModel()
     {
         dataTable = new DataTable();
@@ -32,22 +32,22 @@ class MyViewModel : DependencyObject // INotifyPropertyChanged
         dataTable.Columns.Add("Dummy Column 2");
         dataTable.Columns.Add("Dummy Column 3");
 
-        var dataGridCollectionView = new DataGridCollectionView<DataRow>();
+        var dataGridCollectionView =
+                   new DataGridCollectionView<DataRow>(() => dataTable.NewRow());
         dataGridCollectionView.ItemsCount += OnItemsCount;
         dataGridCollectionView.ItemsRequest += OnItemsRequest;
-
         SetValue(TableSourceProperty, dataGridCollectionView);
     }
 
-    #endregion
 
-    #region Properties
+    ////////////////////////////////////////
+    // Properties
 
+    // DataGrid.ItemsSource に bind する
     public static readonly DependencyProperty TableSourceProperty =
                 DependencyProperty.Register("TableSource",
                                 typeof(DataGridCollectionView<DataRow>),
                                 typeof(MyViewModel));
-    #endregion
 
         #region Public Methods
         #endregion
@@ -91,13 +91,7 @@ class MyViewModel : DependencyObject // INotifyPropertyChanged
         return task;
     }
 
-        #region Events
-        /// <summary>
-        /// 
-        /// </summary>
-//        public event PropertyChangedEventHandler PropertyChanged = delegate { };
-        #endregion
-    }
+} // class MyViewModel
 
 
 }
