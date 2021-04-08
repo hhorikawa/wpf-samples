@@ -15,19 +15,19 @@ public partial class DemoWindow
         /// </summary>
     public DemoWindow()
     {
-            InitializeComponent();
+        InitializeComponent();
 
-            // use a timer to periodically update the memory usage
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 1);
-            timer.Tick += timer_Tick;
-            timer.Start();
-        }
+        // use a timer to periodically update the memory usage
+        DispatcherTimer timer = new DispatcherTimer();
+        timer.Interval = new TimeSpan(0, 0, 1);
+        timer.Tick += timer_Tick;
+        timer.Start();
+    }
 
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            tbMemory.Text = string.Format("{0:0.00} MB", GC.GetTotalMemory(true)/1024.0/1024.0);
-        }
+    void timer_Tick(object sender, EventArgs e)
+    {
+        tbMemory.Text = string.Format("{0:0.00} MB", GC.GetTotalMemory(true)/1024.0/1024.0);
+    }
 
 
     void refreshButton_Click(object sender, RoutedEventArgs e)

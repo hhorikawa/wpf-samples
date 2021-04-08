@@ -24,7 +24,7 @@ namespace UF02UwpDesktop
   /// </summary>
 public partial class MainWindow : Window
 {
-    private static readonly Version _osVersion  
+    private static readonly Version _osVersion
       = (new Func<Version>(() => {
         using (var mc = new System.Management.ManagementClass("Win32_OperatingSystem"))
         using (var moc = mc.GetInstances())
@@ -41,11 +41,11 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
-        if (_osVersion.Major < 10) { 
+        if (_osVersion.Major < 10) {
             MessageBox.Show("このアプリは、Windows 10 でなければ正常に動作しません。",
           "動作不可", MessageBoxButton.OK, MessageBoxImage.Error);
           }
-        else if (_osVersion.Build < 14393) { 
+        else if (_osVersion.Build < 14393) {
             MessageBox.Show("このアプリは、Windows 10 build 14393 未満では一部の機能が動作しません。",
           "動作不完全", MessageBoxButton.OK, MessageBoxImage.Exclamation);
       // ※注：↑簡易的にここに書いたけれど、本来はAppクラスにMainメソッドを追加して、
@@ -76,22 +76,20 @@ public partial class MainWindow : Window
 #if DEBUG
         // 以下、説明用のコード (このアプリの動作には関係がない)
 
-      // JapanesePhoneticAnalyzer は Windows 8.1 から使える
-      // ただし、半角英数字を全角に変換してくれちゃうのが玉に瑕
-      //    https://www.atmarkit.co.jp/ait/articles/1511/25/news028.html
+        // JapanesePhoneticAnalyzer は Windows 8.1 から使える
+        // ただし、半角英数字を全角に変換してくれちゃうのが玉に瑕
+        //    https://www.atmarkit.co.jp/ait/articles/1511/25/news028.html
         IReadOnlyList<Windows.Globalization.JapanesePhoneme> list
         = Windows.Globalization.JapanesePhoneticAnalyzer.GetWords("日本語の文字列abc");
         foreach (var phoneme in list) {
-        // 分割した文字列（形態素）
-        string displayText = phoneme.DisplayText;
+            // 分割した文字列（形態素）
+            string displayText = phoneme.DisplayText;
+            // 分割した文字列の読み仮名
+            string yomiText = phoneme.YomiText;
+            // この形態素は句の先頭か？
+            bool isPhraseStart = phoneme.IsPhraseStart;
 
-        // 分割した文字列の読み仮名
-        string yomiText = phoneme.YomiText;
-
-        // この形態素は句の先頭か？
-        bool isPhraseStart = phoneme.IsPhraseStart;
-
-        // 形態素ごとに何か処理をする
+            // 形態素ごとに何か処理をする
         }
 
         // DualApiPartitionAttribute 属性が付いていなくても使えたりする
@@ -101,11 +99,11 @@ public partial class MainWindow : Window
         bool isContract5Present
             = Windows.Foundation.Metadata.ApiInformation
                 .IsApiContractPresent("Windows.Foundation.UniversalApiContract", 5);
-        MessageBox.Show(">= Windows 10 v1709 = " + isContract5Present.ToString()); 
+        MessageBox.Show(">= Windows 10 v1709 = " + isContract5Present.ToString());
 
         // 使えない (API が package identity を必要とするため)
         try {
-            Windows.Storage.ApplicationDataContainer localSettings = 
+            Windows.Storage.ApplicationDataContainer localSettings =
                         Windows.Storage.ApplicationData.Current.LocalSettings;
             MessageBox.Show(localSettings.ToString());
         }
@@ -148,7 +146,7 @@ public partial class MainWindow : Window
     {
       // 読み仮名を取得するためのクラス
       var trcg = new Windows.Data.Text.TextReverseConversionGenerator("ja");
-      
+
       // 文字列全体の読み仮名を取得する（Win10全バージョン）
       var yomi = await trcg.ConvertBackAsync(inputText);
 
@@ -217,7 +215,7 @@ public partial class MainWindow : Window
         var locator = new Windows.Devices.Geolocation.Geolocator();
         var position = await locator.GetGeopositionAsync();
         var point = position.Coordinate.Point.Position;
-        geolocatorText.Text = string.Format("Latitude(北緯+):{0}, Longitude(東経+):{1}", 
+        geolocatorText.Text = string.Format("Latitude(北緯+):{0}, Longitude(東経+):{1}",
                                             point.Latitude, point.Longitude);
     }
 } // class MainWindow

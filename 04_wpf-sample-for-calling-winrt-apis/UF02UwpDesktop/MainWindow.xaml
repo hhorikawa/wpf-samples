@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:UF02UwpDesktop"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="525" Loaded="Window_Loaded">
+
   <Grid Margin="10" >
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="Auto"/>
@@ -21,11 +22,11 @@
     </Grid.RowDefinitions>
 
     <TextBlock HorizontalAlignment="Right" Margin="0,0,8,0">日本語を入力</TextBlock>
-    <TextBox Grid.Column="1" x:Name="InputText" TextChanged="InputText_TextChanged" 
+    <TextBox Grid.Column="1" x:Name="InputText" TextChanged="InputText_TextChanged"
              Margin="0,0,0,15" />
 
     <TextBlock Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,8,0">読み仮名</TextBlock>
-    <TextBox Grid.Row="1" Grid.Column="1" x:Name="YomiText" IsReadOnly="True" 
+    <TextBox Grid.Row="1" Grid.Column="1" x:Name="YomiText" IsReadOnly="True"
              Foreground="Blue" />
 
     <TextBlock Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,8,0">振り仮名付き表示</TextBlock>
@@ -40,7 +41,7 @@
     </RichTextBox>
 
     <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="0,0,8,0">読み仮名から再変換</TextBlock>
-    <ListBox Grid.Row="3" Grid.Column="1" x:Name="ListBox1" 
+    <ListBox Grid.Row="3" Grid.Column="1" x:Name="ListBox1"
              ScrollViewer.VerticalScrollBarVisibility="Auto" />
 
     <!-- Geolocator sample -->

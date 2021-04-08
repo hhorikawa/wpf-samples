@@ -9,7 +9,7 @@ namespace dotnet_http2_sample
     /// </summary>
 public partial class App : Application
 {
-    private void Application_Startup(object sender, StartupEventArgs e)
+    void Application_Startup(object sender, StartupEventArgs e)
     {
         // コマンドと実行する関数とを紐付ける.
         // "コマンド" として標準コマンドも使える。
