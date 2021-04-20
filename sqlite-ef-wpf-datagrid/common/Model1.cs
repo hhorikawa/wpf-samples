@@ -75,7 +75,7 @@ public class Product: RecordBase
     [Column("name_kana"), Required]
     public String NameKana { get; set; }
 
-    // [Required] は "" もエラーになる. NOT NULL だけ付ける
+    [Required(AllowEmptyStrings = true)] // 単なる `Required` は "" もエラー.
     public String Description { get; set; }
 
     // Foreign key
