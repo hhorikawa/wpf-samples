@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace RestWebApiServer
+namespace RestWebApiServer.Models
 {
 
 // Model

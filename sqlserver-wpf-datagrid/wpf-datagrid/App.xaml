@@ -1,0 +1,10 @@
+﻿<!-- ShutdownMode: 既定値は OnLastWindowClose -->
+<Application x:Class="wpf_datagrid.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:wpf_datagrid"
+             Startup="Application_Startup">
+  <Application.Resources>
+         
+  </Application.Resources>
+</Application>

@@ -6,3 +6,4 @@ UpgradeLog.htm
 Debug/
 obj/
 .vs/
+*.user
