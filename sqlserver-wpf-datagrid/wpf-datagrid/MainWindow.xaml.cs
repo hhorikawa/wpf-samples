@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization; // CultureInfo
 using System.Linq;
@@ -59,7 +59,7 @@ class MainViewModel : DependencyObject
                 new CommandBinding(MyCommands.OrderDetail,
                                        OrderDetailExecuted, CanOrderDetail));
         MyCommands.CommandBindings.Add(
-                new CommandBinding(MyCommands.ListOrders, ListOrdersExecuted));
+                new CommandBinding(MyCommands.FilterOrders, FilterOrdersExecuted));
     }
 
 
@@ -79,8 +79,9 @@ class MainViewModel : DependencyObject
         e.CanExecute = true;
     }
 
-    // static メソッド。sender に基づいて、どのウィンドウで呼び出されたか判定.
-    static void ListOrdersExecuted(object sender, ExecutedRoutedEventArgs e)
+    // ウィンドウを複数開くときは, static メソッドにしたうえで, sender に基づ
+    // いて、どのウィンドウで呼び出されたか判定.
+    static void FilterOrdersExecuted(object sender, ExecutedRoutedEventArgs e)
     {
         MainWindow view = (MainWindow) sender;
         MainViewModel self = (MainViewModel) view.DataContext;

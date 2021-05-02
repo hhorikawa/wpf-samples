@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace wpf_datagrid.Models
 {
@@ -12,6 +14,36 @@ public class Model1 : DbContext
     public Model1()
             : base("name=Model1")
     {
+    }
+
+
+    // created_at, updated_at の自動更新
+    public override int SaveChanges()
+    {
+        add_timestamps();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(
+                        CancellationToken cancellationToken = default)
+    {
+        add_timestamps();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    // `created_at`, `updated_at` を更新。
+    void add_timestamps()
+    {
+        var entities = ChangeTracker.Entries()
+            .Where(x => x.Entity is RecordBase && 
+                   (x.State == EntityState.Added || x.State == EntityState.Modified));
+
+        var now = DateTime.UtcNow; // current datetime
+        foreach (var entity in entities) {
+            if (entity.State == EntityState.Added)
+                ((RecordBase) entity.Entity).CreatedAt = now;
+            ((RecordBase) entity.Entity).UpdatedAt = now;
+        }
     }
 
     // モデルに含めるエンティティ型ごとに DbSet を追加します。Code First モデ

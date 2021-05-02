@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 // 古いアノテイション - .NET 4.8 まで。[非推奨]
@@ -55,7 +55,7 @@ public class SalesOrder: RecordBase
     public virtual Customer Customer { get; set; }
 
     [ForeignKey("SalesOrderId")]
-    public virtual ICollection<SalesOrderDetail> SalesOrderDetails { get; set; }
+    public virtual ICollection<SalesOrderDetail> Details { get; }
 }
 
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -33,11 +33,16 @@ public partial class App : Application
         MyCommands.CommandBindings.Add(
                 new CommandBinding(ApplicationCommands.Close, FileExitCommand));
         MyCommands.CommandBindings.Add(
-                new CommandBinding(MyCommands.NewSalesOrder, NewOrderCommand));
+                new CommandBinding(MyCommands.NewSalesOrder,
+                                   NewSalesOrderCommand));
         MyCommands.CommandBindings.Add(
                 new CommandBinding(MyCommands.NewCustomer, NewCustomerCommand));
         MyCommands.CommandBindings.Add(
-                new CommandBinding(MyCommands.NewWindow, NewWindowCommand));
+                new CommandBinding(MyCommands.Window_SalesOrderList,
+                                   SalesOrderListCommand));
+        MyCommands.CommandBindings.Add(
+                new CommandBinding(MyCommands.Window_CustomerList,
+                                   CustomerListCommand));
 
         var w = new MainWindow();
         w.Show();
@@ -47,15 +52,23 @@ public partial class App : Application
     // 新しい顧客...
     void NewCustomerCommand(object sender, ExecutedRoutedEventArgs e)
     {
-        var dialog = new CustomerWindow();
+        var dialog = new CustomerEditWindow(0);
         dialog.Show();
     }
 
-    // ウィンドウ -> 新しいウィンドウ
-    void NewWindowCommand(object sender, ExecutedRoutedEventArgs e)
+    // Menu/ウィンドウ -> SalesOrder List
+    void SalesOrderListCommand(object sender, ExecutedRoutedEventArgs e)
     {
         // 気にせずどんどん開く
         var w = new MainWindow();
+        w.Show();
+    }
+
+    // Menu/ウィンドウ -> Customer List
+    void CustomerListCommand(object sender, ExecutedRoutedEventArgs e)
+    {
+        // 気にせずどんどん開く
+        var w = new CustomerListWindow();
         w.Show();
     }
 
@@ -66,11 +79,11 @@ public partial class App : Application
         Application.Current.Shutdown();
     }
 
-    // 新しい受注...
-    void NewOrderCommand(object sender, ExecutedRoutedEventArgs e)
+    // [SalesOrder 一覧] ウィンドウ -> 新しい受注...
+    void NewSalesOrderCommand(object sender, ExecutedRoutedEventArgs e)
     {
         // 気にせずどんどん開く。
-        var dialog = new SalesOrderWindow();
+        var dialog = new SalesOrderEditWindow(0);
         dialog.Show();
     }
 

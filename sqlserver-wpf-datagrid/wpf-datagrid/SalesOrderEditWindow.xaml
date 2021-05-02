@@ -1,0 +1,86 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:wpf_datagrid"
+        xmlns:Models="clr-namespace:wpf_datagrid.Models"
+        x:Class="wpf_datagrid.SalesOrderEditWindow"
+        mc:Ignorable="d"
+        Title="SalesOrder Edit" Width="400" Height="300" SizeToContent="Height"
+        Loaded="Window_Loaded" >
+  <Window.Resources>
+    <CollectionViewSource x:Key="salesOrderDetailsViewSource"
+                          Source="{Binding Details}"/>
+  </Window.Resources>
+
+  <Window.DataContext>
+    <Models:SalesOrder />
+  </Window.DataContext>
+
+  <Grid x:Name="grid1" Margin="10"
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition />
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition /> <!-- 幅いっぱい伸ばす -->
+    </Grid.ColumnDefinitions>
+
+    <!-- あえて bind しない. Hidden ではスペースが取られる。Collapsed にする -->
+    <TextBlock Name="errMsg" Grid.Row="0" Grid.ColumnSpan="3" TextWrapping="Wrap"
+               Visibility="Collapsed" Background="LightPink" />
+
+    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right">Customer:</Label>
+    <Label Grid.Row="1" Grid.Column="1" Foreground="Red">*</Label>
+    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal"
+                HorizontalAlignment="Stretch">
+      <TextBlock Name="customerName" HorizontalAlignment="Stretch" />
+      <Button Width="60">詳細</Button>
+    </StackPanel>
+    
+    <Label VerticalAlignment="Center" Grid.Row="2"
+           HorizontalAlignment="Right" Grid.Column="0" Content="Customer Ship To:"/>
+    <Label Grid.Row="2" Grid.Column="1" Foreground="Red">*</Label>
+    <TextBox x:Name="customerShipToTextBox" VerticalAlignment="Center"
+             Text="{Binding CustomerShipTo, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}"
+             Grid.Row="2" Margin="3" Height="23" HorizontalAlignment="Stretch"
+             Grid.Column="2"/>
+    
+    <DataGrid x:Name="salesOrderDetailsDataGrid" AutoGenerateColumns="False"
+              Grid.ColumnSpan="3" EnableRowVirtualization="True"
+              ItemsSource="{Binding Source={StaticResource salesOrderDetailsViewSource}}"
+              Margin="3" Grid.Row="3" HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              VerticalScrollBarVisibility="Visible"
+              RowDetailsVisibilityMode="VisibleWhenSelected">
+      <DataGrid.Columns>
+        <DataGridTextColumn x:Name="idColumn" Binding="{Binding Id}" Header="Id" IsReadOnly="True" Width="SizeToHeader"/>
+        <DataGridTextColumn x:Name="productIdColumn" Binding="{Binding ProductId}" Header="Product Id" Width="SizeToHeader"/>
+        <DataGridTextColumn x:Name="statusColumn" Binding="{Binding Status}" Header="Status" Width="SizeToHeader"/>
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <!-- timestamps -->
+    <Label Grid.Row="4" HorizontalAlignment="Right">Created At:</Label>
+    <TextBlock Grid.Row="4" Grid.Column="2"  Text="{Binding CreatedAt}" />
+    <Label Grid.Row="5" HorizontalAlignment="Right">Updated At:</Label>
+    <TextBlock Grid.Row="5" Grid.Column="2" Text="{Binding UpdatedAt}" />
+
+    <!-- Accept or Cancel -->
+    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" 
+                Orientation="Horizontal" HorizontalAlignment="Center">
+      <Button Name="cancelButton" IsCancel="True" Margin="10,10,10,0" Width="80" Click="cancelButton_Click">Cancel</Button>
+      <Button Name="okButton" IsDefault="True" Margin="10,10,10,0" Width="80"
+              Click="okButton_Click" Content="Create" />
+    </StackPanel>
+
+  </Grid>
+</Window>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,28 +32,38 @@ static class MyCommands
         get { return _newCustomer; }
     }
 
-    // MainWindow -> [一覧表示] button
+    // SalesOrder List Window -> [フィルタ] button
     static readonly RoutedUICommand _listOrders = 
-            new RoutedUICommand("受注の一覧", nameof(ListOrders), 
+            new RoutedUICommand("受注の一覧", nameof(FilterOrders), 
                                 typeof(MyCommands));
-    public static RoutedUICommand ListOrders { 
+    public static RoutedUICommand FilterOrders { 
         get { return _listOrders; }
     }
 
     // MainWindow -> [詳細] button
     static readonly RoutedUICommand _orderDetail = 
-            new RoutedUICommand("注文の詳細を確認", nameof(OrderDetail), 
+            new RoutedUICommand("受注の詳細を確認", nameof(OrderDetail), 
                                 typeof(MyCommands));
     public static RoutedUICommand OrderDetail { 
         get { return _orderDetail; }
     }
 
     static readonly RoutedUICommand _newWindow =
-            new RoutedUICommand("新しいウィンドウ", nameof(NewWindow), 
+            new RoutedUICommand("SalesOrder一覧ウィンドウ",
+                                nameof(Window_SalesOrderList), 
                                 typeof(MyCommands));
-    public static RoutedUICommand NewWindow {
+    public static RoutedUICommand Window_SalesOrderList {
         get { return _newWindow; }
     }
+
+    static readonly RoutedUICommand _newCustomerWindow =
+            new RoutedUICommand("SalesOrder一覧ウィンドウ",
+                                nameof(Window_CustomerList), 
+                                typeof(MyCommands));
+    public static RoutedUICommand Window_CustomerList {
+        get { return _newCustomerWindow; }
+    }
+
 } // class MyCommands
 
 }

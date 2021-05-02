@@ -58,14 +58,21 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="commands.cs" />
+    <Compile Include="customer_list_window.xaml.cs">
+      <DependentUpon>customer_list_window.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\202104291009408_SetupTables.cs" />
     <Compile Include="Migrations\202104291009408_SetupTables.designer.cs">
       <DependentUpon>202104291009408_SetupTables.cs</DependentUpon>
     </Compile>
-    <Compile Include="SalesOrderWindow.xaml.cs">
-      <DependentUpon>SalesOrderWindow.xaml</DependentUpon>
+    <Compile Include="SalesOrderEditWindow.xaml.cs">
+      <DependentUpon>SalesOrderEditWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="CustomerWindow.xaml">
+    <Page Include="CustomerEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="customer_list_window.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -77,14 +84,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CustomerWindow.xaml.cs">
-      <DependentUpon>CustomerWindow.xaml</DependentUpon>
+    <Compile Include="CustomerEditWindow.xaml.cs">
+      <DependentUpon>CustomerEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SalesOrderWindow.xaml">
+    <Page Include="SalesOrderEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -115,8 +122,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Properties\DataSources\wpf_datagrid.Models.Customer.datasource" />
     <None Include="Properties\DataSources\wpf_datagrid.Models.Product.datasource" />
     <None Include="Properties\DataSources\wpf_datagrid.Models.SalesOrder.datasource" />
+    <None Include="Properties\DataSources\wpf_datagrid.Models.SalesOrderDetail.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

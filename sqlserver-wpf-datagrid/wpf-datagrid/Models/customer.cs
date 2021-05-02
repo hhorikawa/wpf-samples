@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,6 +10,7 @@ namespace wpf_datagrid.Models
 {
 
 // 顧客。本当はもっとたくさんフィールドが必要。
+// テーブル名は自動的に複数形になる。
 public class Customer: RecordBase
 {
     public enum MembershipGrade {
@@ -26,7 +27,7 @@ public class Customer: RecordBase
                 {MembershipGrade.Platinum, "Platinum"}
             };
 
-    [Key, Column("id")]
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; protected set; }
 
@@ -36,11 +37,11 @@ public class Customer: RecordBase
     [Column("given_name"), Required]
     public string GivenName { get; set; }
 
-    [Column("ship_to"), Required]
-    public string ShipTo { get; set; }
-
     [Required]
     public string Email { get; set; }
+
+    [Column("ship_to"), Required]
+    public string ShipTo { get; set; }
 
     [Required]
     public MembershipGrade Grade { get; set; }

@@ -1,0 +1,63 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:wpf_datagrid"
+        xmlns:Models="clr-namespace:wpf_datagrid.Models"
+        mc:Ignorable="d"
+        x:Class="wpf_datagrid.CustomerListWindow"
+        Title="Customer List" Height="450" Width="600" Loaded="Window_Loaded">
+  <Window.Resources>
+    <!-- デザイン時にサンプル行を表示 -->
+    <CollectionViewSource x:Key="customerViewSource"
+                          d:DesignSource="{d:DesignInstance {x:Type Models:Customer}, CreateList=True}"/>
+    <!-- コンバータを参照 -->
+    <local:EnumStringConverter x:Key="enumStringConverter" />
+  </Window.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" /> <!-- ストレッチしないほうを Auto にする -->
+      <RowDefinition />
+    </Grid.RowDefinitions>
+
+    <StackPanel Orientation="Horizontal" Grid.Row="0">
+      <TextBox Width="200" Margin="10,10,0,10" />
+      <Button Margin="5,10,10,10" Width="60">フィルタ</Button>
+      <Button Width="90"  Command="{x:Static local:MyCommands.NewCustomer}"
+              Margin="10">新しい顧客...</Button>
+    </StackPanel>
+    
+    <DataGrid Grid.Row="1" x:Name="customerDataGrid"
+              RowDetailsVisibilityMode="VisibleWhenSelected"
+              ItemsSource="{Binding Source={StaticResource customerViewSource}}"
+              EnableRowVirtualization="True" AutoGenerateColumns="False"
+              VerticalScrollBarVisibility="Visible">
+      <DataGrid.Columns>
+        <DataGridTextColumn x:Name="idColumn" Width="SizeToHeader"
+                            IsReadOnly="True" Header="Id" Binding="{Binding Id}"/>
+        <DataGridTextColumn x:Name="surnameColumn" Width="SizeToHeader"
+                            Header="Surname" Binding="{Binding Surname}"/>
+        <DataGridTextColumn x:Name="givenNameColumn" Width="SizeToHeader"
+                            Header="Given Name" Binding="{Binding GivenName}"/>
+        <DataGridTextColumn x:Name="emailColumn" Width="SizeToHeader"
+                            Header="Email" Binding="{Binding Email}"/>
+        <DataGridTextColumn x:Name="shipToColumn" Width="SizeToHeader"
+                            Header="Ship To" Binding="{Binding ShipTo}"/>
+        <DataGridTextColumn x:Name="gradeColumn" Width="SizeToHeader"
+                            Header="Grade"
+                            Binding="{Binding Grade, Converter={StaticResource enumStringConverter}}" />
+        <DataGridTemplateColumn Header="">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <!-- <DatePicker
+                SelectedDate="{Binding UpdatedAt, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}"/> -->
+              <Button Margin="3" Width="40" Click="detailButton_Click" >詳細</Button>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+
+  </Grid>
+</Window>
