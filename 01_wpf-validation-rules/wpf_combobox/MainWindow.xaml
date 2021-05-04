@@ -14,6 +14,9 @@
     <local:MyViewModel />
   </Window.DataContext>
   <Window.Resources>
+    <ControlTemplate x:Key="dummyTemplate">
+      <AdornedElementPlaceholder Name="adornedElement"/>
+    </ControlTemplate>
     <!-- エラー時にメッセージを表示する -->
     <ControlTemplate x:Key="errorTemplate">
       <StackPanel>
@@ -29,7 +32,8 @@
     </ControlTemplate>
   </Window.Resources>
 
-  <Grid Name="gridView">
+  <Grid Name="gridView" Margin="10"
+        Validation.ErrorTemplate="{StaticResource dummyTemplate}">
     <!-- BindingGroup を作ると, 内側のすべてXAML要素で Binding が
       [UpdateSourceTrigger=default のもの] について, source (viewmodel)
       への変更通知が, BindingGroup#CommitEdit() まで保留される.
@@ -80,7 +84,8 @@
     <!-- 記法: XAML 要素の属性は, XAML要素の属性として書いてもいいし, 子要素と
       して書いてもよい. マジか -->
     <TextBox Name="numberBox" HorizontalAlignment="Left" Height="23" Margin="85,141,0,0"
-             Validation.ErrorTemplate="{StaticResource errorTemplate}" VerticalAlignment="Top" Width="120">
+             Validation.ErrorTemplate="{StaticResource errorTemplate}"
+             VerticalAlignment="Top" Width="120">
       <TextBox.Text>
         <!-- XAML 属性値の {...} も, 子要素として書いてよい。というかそれの簡略
           記法.

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -37,12 +38,30 @@ public class EnumStringConverter : IValueConverter
 }
 
 
+// メソッドの直行性が全然ない。
+// ObservableCollection<> に AddRangeメソッドを追加する。
+// ちなみに, 要素一つずつ Add() すると, つどイベントが発火するのでパフォーマン
+// スが酷い。
+// ちゃんとした実装は、例えばこちら;
+//    http://artfulplace.hatenablog.com/entry/2016/12/29/133950
+public class ExObservableCollection<T>:
+                    System.Collections.ObjectModel.ObservableCollection<T>
+{
+    public void AddRange(IEnumerable<T> collection)
+    {
+        ((List<T>) this.Items).AddRange(collection);
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+}
+
     /// <summary>
     /// customer_list_window.xaml の相互作用ロジック
     /// </summary>
 public partial class CustomerListWindow : Window
 {
-    readonly Model1 _dbContext = ((App) App.Current).dbContext;
+    readonly Model1 _dbContext = ((MyApp) Application.Current).dbContext;
+
+    readonly ExObservableCollection<Customer> _customerList = new ExObservableCollection<Customer>();
 
     public CustomerListWindow()
     {
@@ -55,11 +74,15 @@ public partial class CustomerListWindow : Window
 
     void Window_Loaded(object sender, RoutedEventArgs e)
     {
+        _customerList.AddRange(from c in _dbContext.Customers
+                               select c);
+
         // XAML Window.Resources の要素を取得
         var customerViewSource = (CollectionViewSource) (this.FindResource("customerViewSource"));
             // CollectionViewSource.Source プロパティを設定してデータを読み込みます:
-        customerViewSource.Source = (from c in _dbContext.Customers
-                                     select c).ToList();
+        customerViewSource.Source = _customerList;
+        // 何も指定しない場合は, CollectionViewSource.View は,
+        // System.Windows.Data.ListCollectionView になる。
     }
 
     void detailButton_Click(object sender, RoutedEventArgs e)
@@ -67,6 +90,12 @@ public partial class CustomerListWindow : Window
 
     }
 
+    internal void CustomerUpdated()
+    {
+        _customerList.Clear();
+        _customerList.AddRange(from c in _dbContext.Customers
+                               select c);
+    }
 } // class CustomerListWindow 
 
 }

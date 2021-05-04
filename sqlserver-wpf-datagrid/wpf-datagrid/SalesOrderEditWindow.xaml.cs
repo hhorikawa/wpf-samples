@@ -22,7 +22,7 @@ namespace wpf_datagrid
     /// </summary>
 public partial class SalesOrderEditWindow : Window
 {
-    readonly Model1 _dbContext = ((App) App.Current).dbContext;
+    readonly Model1 _dbContext = ((MyApp) Application.Current).dbContext;
 
     public SalesOrderEditWindow(int id)
     {

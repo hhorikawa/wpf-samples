@@ -94,10 +94,10 @@
           <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
           <DataGridTextColumn Header="発送先"  Binding="{Binding CustomerShipTo}"  />
           <!-- Uri with the Binding prop. and the text with the ContentBinding prop. -->
-          <DataGridHyperlinkColumn Header="Email" 
+          <DataGridHyperlinkColumn Header="C/Email" 
                                    Binding="{Binding Customer.Email, Converter={StaticResource EmailConverter}, Mode=OneWay}" 
                                    ContentBinding="{Binding Customer.Email}" />
-          <DataGridCheckBoxColumn Header="Gold?" Binding="{Binding Customer.Grade}" />
+          <DataGridCheckBoxColumn Header="C/Gold?" Binding="{Binding Customer.Grade}" />
           <!-- 値と表示をプロパティ名で指定 -->
           <DataGridComboBoxColumn Header="Status"
                                   ItemsSource="{Binding Source={x:Static Models:SalesOrder.StatusList}, Mode=OneWay}" 

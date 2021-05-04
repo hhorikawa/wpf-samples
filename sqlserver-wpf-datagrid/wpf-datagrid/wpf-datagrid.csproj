@@ -68,6 +68,7 @@
     <Compile Include="SalesOrderEditWindow.xaml.cs">
       <DependentUpon>SalesOrderEditWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="validators.cs" />
     <Page Include="CustomerEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

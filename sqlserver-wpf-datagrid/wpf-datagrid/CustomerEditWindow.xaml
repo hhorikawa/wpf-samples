@@ -8,22 +8,47 @@
         xmlns:Models="clr-namespace:wpf_datagrid.Models"
         x:Class="wpf_datagrid.CustomerEditWindow"
         mc:Ignorable="d"
-        Title="Customer Edit" Width="400" SizeToContent="Height" >
+        Title="Customer Edit" Width="400" SizeToContent="Height">
   <Window.DataContext>
     <Models:Customer />
   </Window.DataContext>
+
+  <Window.Resources>
+    <ControlTemplate x:Key="dummyTemplate">
+      <AdornedElementPlaceholder Name="adornedElement"/>
+    </ControlTemplate>
+    <!-- エラー時にメッセージを表示する -->
+    <ControlTemplate x:Key="errorTemplate">
+      <StackPanel>
+        <!-- 枠線を付ける -->
+        <Border BorderBrush="Red" BorderThickness="1"
+             Width="{Binding ElementName=adornedElement, Path=ActualWidth}"
+             Height="{Binding ElementName=adornedElement, Path=ActualHeight}">
+          <!-- Placeholder for the TextBox itself -->
+          <AdornedElementPlaceholder Name="adornedElement"/>
+        </Border>
+        <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" />
+      </StackPanel>
+    </ControlTemplate>
+  </Window.Resources>
   
-  <Grid x:Name="grid1" VerticalAlignment="Top" Margin="10" 
-        HorizontalAlignment="Stretch" >
+  <Grid x:Name="grid1" Margin="10" 
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        Validation.ErrorTemplate="{StaticResource dummyTemplate}">
+    <Grid.BindingGroup>
+      <BindingGroup NotifyOnValidationError="True" >
+      </BindingGroup>
+    </Grid.BindingGroup>
+    
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
+      <RowDefinition />
+      <RowDefinition />
+      <RowDefinition />
+      <RowDefinition />
+      <RowDefinition />
+      <RowDefinition />
+      <RowDefinition />
       <RowDefinition />
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
@@ -39,30 +64,41 @@
     <Label VerticalAlignment="Center" Grid.Row="1"  
            HorizontalAlignment="Right" Grid.Column="0" Content="Surname:"/>
     <TextBox x:Name="surnameTextBox" VerticalAlignment="Center" Text="{Binding Surname, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
-             Grid.Row="1" Margin="3" Height="23" HorizontalAlignment="Stretch"
+             Grid.Row="1" Margin="0,3,3,8" HorizontalAlignment="Stretch"
              Grid.Column="3" />
 
     <Label VerticalAlignment="Center" Grid.Row="2"  
            HorizontalAlignment="Right" Grid.Column="0" Content="Given Name:"/>
     <Label Grid.Row="2" Grid.Column="1" Foreground="Red">*</Label>
-    <TextBox x:Name="givenNameTextBox" VerticalAlignment="Center"
-             Text="{Binding GivenName, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
-             Grid.Row="2" Margin="3" Height="23" HorizontalAlignment="Stretch"
-             Grid.Column="2" />
+    <TextBox x:Name="givenNameTextBox" 
+             Grid.Row="2" Grid.Column="2" Margin="0,3,3,8" 
+             HorizontalAlignment="Stretch"
+             Validation.ErrorTemplate="{StaticResource errorTemplate}" >
+      <!-- XAML 属性値の {...} は, 子要素の簡略記法. -->
+      <!-- UpdateSourceTrigger のデフォルト値は LostFocus. リアルタイム検査す
+           るときは変更すること。 -->
+      <TextBox.Text>
+        <Binding Path="GivenName" UpdateSourceTrigger="PropertyChanged">
+          <Binding.ValidationRules>
+            <local:ValidatesPresence ValidatesOnTargetUpdated="True" />
+          </Binding.ValidationRules>
+        </Binding>
+      </TextBox.Text>      
+    </TextBox>
 
     <Label VerticalAlignment="Center" Grid.Row="3"  
            HorizontalAlignment="Right" Grid.Column="0" Content="Email:"/>
     <Label Grid.Row="3" Grid.Column="1" Foreground="Red">*</Label>
     <TextBox x:Name="emailTextBox" VerticalAlignment="Center" 
              Text="{Binding Email, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
-             Grid.Row="3" Margin="3" Height="23" HorizontalAlignment="Stretch" 
+             Grid.Row="3" Margin="0,3,3,8" HorizontalAlignment="Stretch" 
              Grid.Column="2" />
 
     <Label VerticalAlignment="Center" Grid.Row="4"  
            HorizontalAlignment="Right" Grid.Column="0" Content="Ship To:"/>
     <Label Grid.Row="4" Grid.Column="1" Foreground="Red">*</Label>
     <TextBox x:Name="shipToTextBox" VerticalAlignment="Center" Text="{Binding ShipTo, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
-             Grid.Row="4" Margin="3" Height="23" HorizontalAlignment="Stretch"
+             Grid.Row="4" Margin="0,3,3,8" HorizontalAlignment="Stretch"
              Grid.Column="2" />
 
     <Label VerticalAlignment="Center" Grid.Row="5" 
@@ -75,7 +111,7 @@
     <ComboBox Grid.Row="5" Grid.Column="2" Width="150" HorizontalAlignment="Left"
               ItemsSource="{Binding Source={x:Static Models:Customer.GradeStr}, Mode=OneWay}" 
               SelectedValuePath="Key" DisplayMemberPath="Value" 
-              SelectedValue="{Binding Grade, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=true, ValidatesOnExceptions=true}" Margin="3,0,0,0" />
+              SelectedValue="{Binding Grade, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=true, ValidatesOnExceptions=true}" Margin="0,0,0,8" />
 
     <!-- timestamps -->
     <Label Grid.Row="6" HorizontalAlignment="Right">Created At:</Label>

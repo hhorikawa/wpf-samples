@@ -21,10 +21,16 @@ namespace wpf_datagrid
     /// </summary>
 public partial class CustomerEditWindow : Window
 {
-    readonly Model1 _dbContext = ((App) App.Current).dbContext;
+    readonly MyApp _app;
+    readonly Model1 _dbContext;
+
+    public event EventHandler Changed;
 
     public CustomerEditWindow(int id)
     {
+        _app = (MyApp) Application.Current;
+        _dbContext = _app.dbContext;
+
         InitializeComponent();
 
         if (id > 0) {
@@ -38,6 +44,29 @@ public partial class CustomerEditWindow : Window
     void okButton_Click(object sender, RoutedEventArgs ev)
     {
         Customer r = (Customer) DataContext;
+
+        // ここのサンプルコードでは, 自分でXAMLツリーを辿って,
+        // 全部のコントロールが valid かどうか確認している。
+        // https://docs.microsoft.com/ja-jp/dotnet/desktop/wpf/app-development/dialog-boxes-overview?view=netframeworkdesktop-4.8
+        //   => BindingGroup を作ると、一撃で取れる。こっちのほうが良さそう。
+
+        // XAML 検査器によるエラーメッセージ.
+        // しかし、データベースも妥当性検査をするので、二度手間になる。
+        // UIの観点でも、通ると思ったものが通らないと、適切ではない。
+        // => 簡便なリアルタイム検査と caution のみにとどめ、
+        //    エラーにするのはデータベースに任せるのがよい。
+        grid1.BindingGroup.CommitEdit();
+        if (Validation.GetHasError(grid1)) {
+            string msg = "";
+            foreach (ValidationError s in Validation.GetErrors(grid1)) {
+                // .RuleInError は検査器を指す.
+                msg += ((BindingExpression) s.BindingInError).ResolvedSourcePropertyName + ":" + s.ErrorContent;
+            }
+            errMsg.Text = msg;
+            errMsg.Visibility = Visibility.Visible;
+            return;
+        }
+
         r.LockVersion++; // TODO: check
         if (r.Id == 0)
             _dbContext.Customers.Add(r);
@@ -56,6 +85,7 @@ public partial class CustomerEditWindow : Window
             return;
         }
 
+        Changed.Invoke(this, null);
         Close();
     }
 

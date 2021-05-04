@@ -13,11 +13,13 @@ namespace wpf_datagrid
     /// <summary>
     /// App.xaml の相互作用ロジック
     /// </summary>
-public partial class App : Application
+public partial class MyApp : Application
 {
     public readonly Model1 dbContext;
 
-    App()
+    List<CustomerListWindow> customerWindows = new List<CustomerListWindow>();
+
+    MyApp()
     {
         // DBに接続
         dbContext = new Model1();
@@ -53,7 +55,15 @@ public partial class App : Application
     void NewCustomerCommand(object sender, ExecutedRoutedEventArgs e)
     {
         var dialog = new CustomerEditWindow(0);
+        dialog.Changed += OnCustomerChanged;
         dialog.Show();
+    }
+
+    void OnCustomerChanged(object sender, EventArgs e)
+    {
+        foreach (var w in customerWindows) {
+            w.CustomerUpdated();
+        }
     }
 
     // Menu/ウィンドウ -> SalesOrder List
@@ -69,10 +79,11 @@ public partial class App : Application
     {
         // 気にせずどんどん開く
         var w = new CustomerListWindow();
+        customerWindows.Add(w);
         w.Show();
     }
 
-
+    // Menu/ファイル -> 終了
     void FileExitCommand( object sender, ExecutedRoutedEventArgs e )
     {
         // ここで、保存しますか? などを出す
