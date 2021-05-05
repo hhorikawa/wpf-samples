@@ -59,12 +59,16 @@ public class ExObservableCollection<T>:
     /// </summary>
 public partial class CustomerListWindow : Window
 {
-    readonly Model1 _dbContext = ((MyApp) Application.Current).dbContext;
+    readonly MyApp _app;
+    readonly Model1 _dbContext;
 
     readonly ExObservableCollection<Customer> _customerList = new ExObservableCollection<Customer>();
 
     public CustomerListWindow()
     {
+        _app = (MyApp) Application.Current;
+        _dbContext = _app.dbContext;
+
         InitializeComponent();
 
         // CommandBindings は readonly のため、単に代入は不可
@@ -72,6 +76,7 @@ public partial class CustomerListWindow : Window
             CommandBindings.Add(binding);
     }
 
+    // Event handler
     void Window_Loaded(object sender, RoutedEventArgs e)
     {
         _customerList.AddRange(from c in _dbContext.Customers
@@ -85,10 +90,6 @@ public partial class CustomerListWindow : Window
         // System.Windows.Data.ListCollectionView になる。
     }
 
-    void detailButton_Click(object sender, RoutedEventArgs e)
-    {
-
-    }
 
     internal void CustomerUpdated()
     {
@@ -96,6 +97,12 @@ public partial class CustomerListWindow : Window
         _customerList.AddRange(from c in _dbContext.Customers
                                select c);
     }
+
+    void Window_Closed(object sender, EventArgs e)
+    {
+        _app.customerListWindows.Remove(this);
+    }
+
 } // class CustomerListWindow 
 
 }

@@ -24,14 +24,16 @@ public partial class CustomerEditWindow : Window
     readonly MyApp _app;
     readonly Model1 _dbContext;
 
-    public event EventHandler Changed;
+    event EventHandler Changed;
 
-    public CustomerEditWindow(int id)
+    public CustomerEditWindow(int id, EventHandler changedHandler)
     {
         _app = (MyApp) Application.Current;
         _dbContext = _app.dbContext;
 
         InitializeComponent();
+
+        Changed += changedHandler;
 
         if (id > 0) {
             // 見つからないときは例外.
@@ -93,6 +95,15 @@ public partial class CustomerEditWindow : Window
     {
         Close();
     }
+
+
+    void Window_Closed(object sender, EventArgs e)
+    {
+        Customer r = (Customer) DataContext;
+        if (r.Id > 0)
+            _app.customerEditWindows.Remove(r.Id);
+    }
+
 } // class CustomerWindow
 
 }

@@ -8,7 +8,7 @@
         xmlns:Models="clr-namespace:wpf_datagrid.Models"
         x:Class="wpf_datagrid.CustomerEditWindow"
         mc:Ignorable="d"
-        Title="Customer Edit" Width="400" SizeToContent="Height">
+        Title="Customer Edit" Width="400" SizeToContent="Height" Closed="Window_Closed">
   <Window.DataContext>
     <Models:Customer />
   </Window.DataContext>

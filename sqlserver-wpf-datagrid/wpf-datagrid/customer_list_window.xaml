@@ -6,7 +6,7 @@
         xmlns:Models="clr-namespace:wpf_datagrid.Models"
         mc:Ignorable="d"
         x:Class="wpf_datagrid.CustomerListWindow"
-        Title="Customer List" Height="450" Width="600" Loaded="Window_Loaded">
+        Title="Customer List" Height="450" Width="600" Loaded="Window_Loaded" Closed="Window_Closed">
   <Window.Resources>
     <!-- デザイン時にサンプル行を表示 -->
     <CollectionViewSource x:Key="customerViewSource"
@@ -52,7 +52,12 @@
             <DataTemplate>
               <!-- <DatePicker
                 SelectedDate="{Binding UpdatedAt, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}"/> -->
-              <Button Margin="3" Width="40" Click="detailButton_Click" >詳細</Button>
+              <!-- 複数の modeless dialog を開けるようにするには, Command を
+                使って, 別クラスで handle するのが簡単。
+                CommandParameter で対象を指定. -->
+              <Button Margin="3" Width="50"
+                      Command="{x:Static local:MyCommands.CustomerDetail}"
+                      CommandParameter="{Binding}" >編集...</Button>
             </DataTemplate>
           </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>

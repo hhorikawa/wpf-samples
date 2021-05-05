@@ -109,8 +109,9 @@
             <DataGridTemplateColumn.CellTemplate>
               <DataTemplate>
                 <!-- さらにここに Grid などを置いてもよい. -->
-                <Button Margin="3" Content="詳細" Width="40" 
-                        Command="{x:Static local:MyCommands.OrderDetail}" />
+                <Button Margin="3" Width="50" 
+                        Command="{x:Static local:MyCommands.SalesOrderDetail}"
+                        CommandParameter="{Binding}" >編集...</Button>
               </DataTemplate>
             </DataGridTemplateColumn.CellTemplate>
           </DataGridTemplateColumn>

@@ -42,10 +42,18 @@ static class MyCommands
 
     // MainWindow -> [詳細] button
     static readonly RoutedUICommand _orderDetail = 
-            new RoutedUICommand("受注の詳細を確認", nameof(OrderDetail), 
+            new RoutedUICommand("受注の詳細を確認", nameof(SalesOrderDetail), 
                                 typeof(MyCommands));
-    public static RoutedUICommand OrderDetail { 
+    public static RoutedUICommand SalesOrderDetail { 
         get { return _orderDetail; }
+    }
+
+    // Customer List Window -> [詳細] button
+    static readonly RoutedUICommand _customerDetail = 
+            new RoutedUICommand("顧客の詳細を確認", nameof(CustomerDetail), 
+                                typeof(MyCommands));
+    public static RoutedUICommand CustomerDetail { 
+        get { return _customerDetail; }
     }
 
     static readonly RoutedUICommand _newWindow =

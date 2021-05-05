@@ -56,9 +56,6 @@ class MainViewModel : DependencyObject
         // 2回 Add() しても、最初のほうが優先される。
         // なので、コンストラクタで Add() しても意味ない.
         MyCommands.CommandBindings.Add(
-                new CommandBinding(MyCommands.OrderDetail,
-                                       OrderDetailExecuted, CanOrderDetail));
-        MyCommands.CommandBindings.Add(
                 new CommandBinding(MyCommands.FilterOrders, FilterOrdersExecuted));
     }
 
@@ -66,17 +63,6 @@ class MainViewModel : DependencyObject
     // コンストラクタ
     public MainViewModel()
     {
-    }
-
-    // 注文の詳細...
-    static void OrderDetailExecuted(object sender, ExecutedRoutedEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
-
-    static void CanOrderDetail(object sender, CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = true;
     }
 
     // ウィンドウを複数開くときは, static メソッドにしたうえで, sender に基づ

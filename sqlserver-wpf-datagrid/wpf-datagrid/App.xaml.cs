@@ -17,8 +17,15 @@ public partial class MyApp : Application
 {
     public readonly Model1 dbContext;
 
-    List<CustomerListWindow> customerWindows = new List<CustomerListWindow>();
+    public List<CustomerListWindow> customerListWindows =
+                                    new List<CustomerListWindow>();
 
+    public Dictionary<int, CustomerEditWindow> customerEditWindows =
+                                    new Dictionary<int, CustomerEditWindow>();
+    public Dictionary<int, SalesOrderEditWindow> soEditWindows =
+                                    new Dictionary<int, SalesOrderEditWindow>();
+
+    // コンストラクタ
     MyApp()
     {
         // DBに接続
@@ -26,19 +33,19 @@ public partial class MyApp : Application
     }
 
 
+    /// //////////////////////////////////////////////////////////////
+    /// Event handlers
+
     void Application_Startup(object sender, StartupEventArgs e)
     {
         // コマンドと実行する関数とを紐付ける. "コマンド" として標準コマンドも
         // 使える。
         // コマンドは、それ自身を識別するのみ。実行されるコードは含まない。わ
         // かりにくい。
+
+        // Menu
         MyCommands.CommandBindings.Add(
                 new CommandBinding(ApplicationCommands.Close, FileExitCommand));
-        MyCommands.CommandBindings.Add(
-                new CommandBinding(MyCommands.NewSalesOrder,
-                                   NewSalesOrderCommand));
-        MyCommands.CommandBindings.Add(
-                new CommandBinding(MyCommands.NewCustomer, NewCustomerCommand));
         MyCommands.CommandBindings.Add(
                 new CommandBinding(MyCommands.Window_SalesOrderList,
                                    SalesOrderListCommand));
@@ -46,25 +53,33 @@ public partial class MyApp : Application
                 new CommandBinding(MyCommands.Window_CustomerList,
                                    CustomerListCommand));
 
+        MyCommands.CommandBindings.Add(
+                new CommandBinding(MyCommands.NewSalesOrder,
+                                   NewSalesOrderCommand));
+        MyCommands.CommandBindings.Add(
+                new CommandBinding(MyCommands.NewCustomer, NewCustomerCommand));
+        MyCommands.CommandBindings.Add(
+                new CommandBinding(MyCommands.SalesOrderDetail,
+                                   SalesOrderDetailExecuted, CanSalesOrderDetail));
+        MyCommands.CommandBindings.Add(
+                new CommandBinding(MyCommands.CustomerDetail,
+                                   CustomerDetailExecuted, CanCustomerDetail));
+
         var w = new MainWindow();
         w.Show();
     }
 
 
-    // 新しい顧客...
-    void NewCustomerCommand(object sender, ExecutedRoutedEventArgs e)
-    {
-        var dialog = new CustomerEditWindow(0);
-        dialog.Changed += OnCustomerChanged;
-        dialog.Show();
-    }
-
     void OnCustomerChanged(object sender, EventArgs e)
     {
-        foreach (var w in customerWindows) {
+        foreach (var w in customerListWindows) {
             w.CustomerUpdated();
         }
     }
+
+
+    /// //////////////////////////////////////////////////////////////
+    /// Command handlers
 
     // Menu/ウィンドウ -> SalesOrder List
     void SalesOrderListCommand(object sender, ExecutedRoutedEventArgs e)
@@ -79,7 +94,7 @@ public partial class MyApp : Application
     {
         // 気にせずどんどん開く
         var w = new CustomerListWindow();
-        customerWindows.Add(w);
+        customerListWindows.Add(w);
         w.Show();
     }
 
@@ -96,6 +111,47 @@ public partial class MyApp : Application
         // 気にせずどんどん開く。
         var dialog = new SalesOrderEditWindow(0);
         dialog.Show();
+    }
+
+    // 新しい顧客...
+    void NewCustomerCommand(object sender, ExecutedRoutedEventArgs e)
+    {
+        var dialog = new CustomerEditWindow(0, OnCustomerChanged);
+        dialog.Show();
+    }
+
+    // [SalesOrder 一覧] ウィンドウ -> 受注の詳細...
+    void SalesOrderDetailExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        // ただ一つの編集ウィンドウを表示する、挙動のほうが簡単。
+        // ここでは, ウィンドウをリサイクルする例.
+
+        throw new NotImplementedException();
+    }
+
+    // コマンドが実行可能かどうか
+    void CanSalesOrderDetail(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = true;
+    }
+
+    // Command を使う場合, e.Parameter で必要なデータをやり取りする。
+    // XAML 側で CommandParameter を指定しない場合, null.
+    void CustomerDetailExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        int id = ((Customer) e.Parameter).Id;
+        if (customerEditWindows.ContainsKey(id))
+            customerEditWindows[id].Focus();
+        else {
+            var dialog = new CustomerEditWindow(id, OnCustomerChanged);
+            customerEditWindows.Add(id, dialog);
+            dialog.Show();
+        }
+    }
+
+    void CanCustomerDetail(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = true;
     }
 
 } // class App
