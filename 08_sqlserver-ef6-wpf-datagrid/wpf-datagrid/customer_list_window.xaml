@@ -6,11 +6,11 @@
         xmlns:Models="clr-namespace:wpf_datagrid.Models"
         mc:Ignorable="d"
         x:Class="wpf_datagrid.CustomerListWindow"
-        Title="Customer List" Height="450" Width="600" Loaded="Window_Loaded" Closed="Window_Closed">
+        Title="Customer List" Height="450" Width="600" Loaded="Window_Loaded" >
   <Window.Resources>
     <!-- デザイン時にサンプル行を表示 -->
     <CollectionViewSource x:Key="customerViewSource"
-                          d:DesignSource="{d:DesignInstance {x:Type Models:Customer}, CreateList=True}"/>
+            d:DesignSource="{d:DesignInstance {x:Type Models:Customer}, CreateList=True}"/>
     <!-- コンバータを参照 -->
     <local:EnumStringConverter x:Key="enumStringConverter" />
   </Window.Resources>
@@ -32,7 +32,7 @@
               RowDetailsVisibilityMode="VisibleWhenSelected"
               ItemsSource="{Binding Source={StaticResource customerViewSource}}"
               EnableRowVirtualization="True" AutoGenerateColumns="False"
-              VerticalScrollBarVisibility="Visible">
+              VerticalScrollBarVisibility="Visible" CanUserAddRows="False">
       <DataGrid.Columns>
         <DataGridTextColumn x:Name="idColumn" Width="SizeToHeader"
                             IsReadOnly="True" Header="Id" Binding="{Binding Id}"/>
@@ -45,8 +45,8 @@
         <DataGridTextColumn x:Name="shipToColumn" Width="SizeToHeader"
                             Header="Ship To" Binding="{Binding ShipTo}"/>
         <DataGridTextColumn x:Name="gradeColumn" Width="SizeToHeader"
-                            Header="Grade"
-                            Binding="{Binding Grade, Converter={StaticResource enumStringConverter}}" />
+              Header="Grade"
+              Binding="{Binding Grade, Converter={StaticResource enumStringConverter}, Mode=OneWay}" />
         <DataGridTemplateColumn Header="">
           <DataGridTemplateColumn.CellTemplate>
             <DataTemplate>

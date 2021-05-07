@@ -15,21 +15,26 @@ namespace wpf_datagrid
     /// </summary>
 public partial class MyApp : Application
 {
-    public readonly Model1 dbContext;
+    public static Model1 dbContext;
 
-    public List<CustomerListWindow> customerListWindows =
+    List<CustomerListWindow> customerListWindows =
                                     new List<CustomerListWindow>();
+    List<MainWindow> soListWindows = new List<MainWindow>();
 
-    public Dictionary<int, CustomerEditWindow> customerEditWindows =
+    Dictionary<int, CustomerEditWindow> customerEditWindows =
                                     new Dictionary<int, CustomerEditWindow>();
-    public Dictionary<int, SalesOrderEditWindow> soEditWindows =
+    Dictionary<int, SalesOrderEditWindow> soEditWindows =
                                     new Dictionary<int, SalesOrderEditWindow>();
+
+    public event EventHandler SalesOrderUpdated;
 
     // コンストラクタ
     MyApp()
     {
-        // DBに接続
-        dbContext = new Model1();
+        if (dbContext == null) { 
+            // DBに接続
+            dbContext = new Model1();
+        }
     }
 
 
@@ -70,11 +75,18 @@ public partial class MyApp : Application
     }
 
 
+    // 直接 list window で受けようとすると, 多:多になってしまう。
     void OnCustomerChanged(object sender, EventArgs e)
     {
         foreach (var w in customerListWindows) {
-            w.CustomerUpdated();
+            w.OnCustomerUpdated();
         }
+    }
+
+    void OnSalesOrderChanged(object sender, EventArgs e)
+    {
+        // 単に発火させる
+        SalesOrderUpdated(sender, e);
     }
 
 
@@ -90,11 +102,12 @@ public partial class MyApp : Application
     }
 
     // Menu/ウィンドウ -> Customer List
-    void CustomerListCommand(object sender, ExecutedRoutedEventArgs e)
+    void CustomerListCommand(object sender, ExecutedRoutedEventArgs args)
     {
         // 気にせずどんどん開く
         var w = new CustomerListWindow();
         customerListWindows.Add(w);
+        w.Closed += (s, e) => { customerListWindows.Remove(w); };
         w.Show();
     }
 
@@ -109,7 +122,7 @@ public partial class MyApp : Application
     void NewSalesOrderCommand(object sender, ExecutedRoutedEventArgs e)
     {
         // 気にせずどんどん開く。
-        var dialog = new SalesOrderEditWindow(0);
+        var dialog = new SalesOrderEditWindow(0, OnSalesOrderChanged);
         dialog.Show();
     }
 
@@ -121,12 +134,19 @@ public partial class MyApp : Application
     }
 
     // [SalesOrder 一覧] ウィンドウ -> 受注の詳細...
-    void SalesOrderDetailExecuted(object sender, ExecutedRoutedEventArgs e)
+    void SalesOrderDetailExecuted(object sender, ExecutedRoutedEventArgs args)
     {
-        // ただ一つの編集ウィンドウを表示する、挙動のほうが簡単。
+        // ただ一つの編集ウィンドウを表示する、という挙動のほうが簡単。
         // ここでは, ウィンドウをリサイクルする例.
-
-        throw new NotImplementedException();
+        int id = ((SalesOrder) args.Parameter).Id;
+        if (soEditWindows.ContainsKey(id))
+            soEditWindows[id].Focus();
+        else {
+            var dialog = new SalesOrderEditWindow(id, OnSalesOrderChanged);
+            soEditWindows.Add(id, dialog);
+            dialog.Closed += (s, e) => { soEditWindows.Remove(id); };
+            dialog.Show();
+        }
     }
 
     // コマンドが実行可能かどうか
@@ -137,14 +157,15 @@ public partial class MyApp : Application
 
     // Command を使う場合, e.Parameter で必要なデータをやり取りする。
     // XAML 側で CommandParameter を指定しない場合, null.
-    void CustomerDetailExecuted(object sender, ExecutedRoutedEventArgs e)
+    void CustomerDetailExecuted(object sender, ExecutedRoutedEventArgs args)
     {
-        int id = ((Customer) e.Parameter).Id;
+        int id = ((Customer) args.Parameter).Id;
         if (customerEditWindows.ContainsKey(id))
             customerEditWindows[id].Focus();
         else {
             var dialog = new CustomerEditWindow(id, OnCustomerChanged);
             customerEditWindows.Add(id, dialog);
+            dialog.Closed += (s, e) => { customerEditWindows.Remove(id); };
             dialog.Show();
         }
     }

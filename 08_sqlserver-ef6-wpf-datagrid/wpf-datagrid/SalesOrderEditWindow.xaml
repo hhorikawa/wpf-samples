@@ -6,11 +6,12 @@
         xmlns:Models="clr-namespace:wpf_datagrid.Models"
         x:Class="wpf_datagrid.SalesOrderEditWindow"
         mc:Ignorable="d"
-        Title="SalesOrder Edit" Width="400" Height="300" SizeToContent="Height"
+        Title="SalesOrder Edit" Width="400" Height="500" SizeToContent="Height"
         Loaded="Window_Loaded" >
   <Window.Resources>
     <CollectionViewSource x:Key="salesOrderDetailsViewSource"
-                          Source="{Binding Details}"/>
+          d:DesignSource="{d:DesignInstance {x:Type Models:SalesOrderDetail}, CreateList=True}"
+          Source="{Binding Details}"/>
   </Window.Resources>
 
   <Window.DataContext>
@@ -24,6 +25,7 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition />
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
@@ -42,10 +44,11 @@
     <Label Grid.Row="1" Grid.Column="1" Foreground="Red">*</Label>
     <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal"
                 HorizontalAlignment="Stretch">
+      <!-- bind しない -->
       <TextBlock Name="customerName" HorizontalAlignment="Stretch" />
-      <Button Width="60">詳細</Button>
+      <Button Width="60" Click="customerPickUpButton_Click">選択...</Button>
     </StackPanel>
-    
+
     <Label VerticalAlignment="Center" Grid.Row="2"
            HorizontalAlignment="Right" Grid.Column="0" Content="Customer Ship To:"/>
     <Label Grid.Row="2" Grid.Column="1" Foreground="Red">*</Label>
@@ -53,29 +56,46 @@
              Text="{Binding CustomerShipTo, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}"
              Grid.Row="2" Margin="3" Height="23" HorizontalAlignment="Stretch"
              Grid.Column="2"/>
-    
+
     <DataGrid x:Name="salesOrderDetailsDataGrid" AutoGenerateColumns="False"
               Grid.ColumnSpan="3" EnableRowVirtualization="True"
               ItemsSource="{Binding Source={StaticResource salesOrderDetailsViewSource}}"
               Margin="3" Grid.Row="3" HorizontalAlignment="Stretch"
               VerticalAlignment="Stretch"
               VerticalScrollBarVisibility="Visible"
-              RowDetailsVisibilityMode="VisibleWhenSelected">
+              RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False">
       <DataGrid.Columns>
         <DataGridTextColumn x:Name="idColumn" Binding="{Binding Id}" Header="Id" IsReadOnly="True" Width="SizeToHeader"/>
-        <DataGridTextColumn x:Name="productIdColumn" Binding="{Binding ProductId}" Header="Product Id" Width="SizeToHeader"/>
-        <DataGridTextColumn x:Name="statusColumn" Binding="{Binding Status}" Header="Status" Width="SizeToHeader"/>
+        <DataGridTextColumn Binding="{Binding Product.Name}" Header="Product"
+                            Width="SizeToHeader"/>
+        <!-- コンボボックスのときは、簡便な記法がある -->
+        <DataGridComboBoxColumn Header="Status" Width="SizeToHeader"
+              ItemsSource="{Binding Source={x:Static Models:SalesOrder.StatusList}, Mode=OneWay}"
+              SelectedValuePath="Key" DisplayMemberPath="Value"
+              SelectedValueBinding="{Binding Status, UpdateSourceTrigger=PropertyChanged}" />
       </DataGrid.Columns>
     </DataGrid>
 
+    <GroupBox Header="新しい明細" Grid.Row="4" Grid.ColumnSpan="3">
+      <StackPanel Orientation="Horizontal" Name="newDetail"
+                HorizontalAlignment="Stretch" >
+        <StackPanel.DataContext>
+          <Models:SalesOrderDetail />
+        </StackPanel.DataContext>
+        <TextBlock HorizontalAlignment="Stretch" Name="productName">Product</TextBlock>
+        <Button Click="productPickUpButton_Click">選択...</Button>
+        <Button Width="60" Click="detailAddButton_Click">追加</Button>
+      </StackPanel>
+    </GroupBox>
+
     <!-- timestamps -->
-    <Label Grid.Row="4" HorizontalAlignment="Right">Created At:</Label>
-    <TextBlock Grid.Row="4" Grid.Column="2"  Text="{Binding CreatedAt}" />
-    <Label Grid.Row="5" HorizontalAlignment="Right">Updated At:</Label>
-    <TextBlock Grid.Row="5" Grid.Column="2" Text="{Binding UpdatedAt}" />
+    <Label Grid.Row="5" HorizontalAlignment="Right">Created At:</Label>
+    <TextBlock Grid.Row="5" Grid.Column="2"  Text="{Binding CreatedAt}" />
+    <Label Grid.Row="6" HorizontalAlignment="Right">Updated At:</Label>
+    <TextBlock Grid.Row="6" Grid.Column="2" Text="{Binding UpdatedAt}" />
 
     <!-- Accept or Cancel -->
-    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" 
+    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="7"
                 Orientation="Horizontal" HorizontalAlignment="Center">
       <Button Name="cancelButton" IsCancel="True" Margin="10,10,10,0" Width="80" Click="cancelButton_Click">Cancel</Button>
       <Button Name="okButton" IsDefault="True" Margin="10,10,10,0" Width="80"

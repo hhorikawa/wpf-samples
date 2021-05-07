@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -36,6 +36,14 @@ public class ProdCategory: RecordBase
     /// ////////////////
     // Navigation property
 
+/* set が必要!! 次のコードで, cat.Products に product list が 暗黙に set され
+ * る.
+ *         context.Products.AddOrUpdate(new Product() {
+                            Name = "XYZ 567",
+                            NameKana = "エックスワイゼット567",
+                            Description = "",
+                            CategoryId = cat.Id });
+ */
     [ForeignKey("CategoryId")]
     public virtual ICollection<Product> Products { get; set; }
 }

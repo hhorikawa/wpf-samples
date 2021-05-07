@@ -82,3 +82,6 @@ UWP アプリ用の API "Windows Runtime APIs" (WinRT APIs) を呼び出す。�
 Collection クラスではなく, collection view クラスを作り、これを `DataGrid.ItemsSource` に bind する。手を抜くため, `ListCollectionView` クラスから派生して最小限だけ override するのがよい。
 
 
+
+
+## 

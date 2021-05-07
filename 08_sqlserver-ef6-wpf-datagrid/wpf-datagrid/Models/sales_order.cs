@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 // 古いアノテイション - .NET 4.8 まで。[非推奨]
 //using System.Data.Linq.Mapping;
@@ -25,8 +26,15 @@ public enum SalesOrderStatus {
 // 受注
 // 一つの注文に複数の商品がある。=> SalesOrderDetail を複数持つ。
 [Table("sales_orders")]
-public class SalesOrder: RecordBase
+public class SalesOrder: RecordBase, INotifyPropertyChanged
 {
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected void RaisePropertyChanged(string propertyName)
+    {
+        PropertyChanged ?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
     public static readonly Dictionary<SalesOrderStatus, string> StatusList =
         new Dictionary<SalesOrderStatus, string>() {
             {SalesOrderStatus.New,        "New"},
@@ -35,7 +43,7 @@ public class SalesOrder: RecordBase
             //{OrderStatus.Paid, "Paid"},
     };
 
-    [Key, Column("id")]
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; protected set; }
 
@@ -43,10 +51,26 @@ public class SalesOrder: RecordBase
     [Column("customer_id"), Required]
     public int CustomerId { get; set; }
 
+    string _cst;
     // 顧客情報。
     // 変化するものはコピーするのが定石. ここでは, 試しに ship_to だけ.
     [Column("customer_ship_to"), Required]
-    public string CustomerShipTo { get; set; }
+    public string CustomerShipTo {
+        get { return _cst; }
+        set { _cst = value;
+            RaisePropertyChanged(nameof(CustomerShipTo));
+        }
+    }
+
+    // データベースに保存しない
+    [NotMapped]
+    public SalesOrderStatus Status {
+        get {
+            if (Details.All(x => x.Status == SalesOrderStatus.Shipped))
+                return SalesOrderStatus.Shipped;
+            return SalesOrderStatus.New;
+        }
+    }
 
     /// //
     // Navigation properties
@@ -55,14 +79,15 @@ public class SalesOrder: RecordBase
     public virtual Customer Customer { get; set; }
 
     [ForeignKey("SalesOrderId")]
-    public virtual ICollection<SalesOrderDetail> Details { get; }
+    public virtual ICollection<SalesOrderDetail> Details { get; set; } =
+                new List<SalesOrderDetail>();
 }
 
 
 [Table("sales_order_details")]
 public class SalesOrderDetail
 {
-    [Key, Column("id")]
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; protected set; }
 

@@ -3,15 +3,15 @@
   ステイタスバーを表示するときは, ResizeMode="CanResizeWithGrip" がよい. 
   clr-namespace: で XAML とC#コードの名前空間を紐付け。
   -->
-<Window x:Class="wpf_datagrid.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:wpf_datagrid"
         xmlns:Models="clr-namespace:wpf_datagrid.Models"
         mc:Ignorable="d"
-        Title="SalesOrder List" Height="450" Width="600" ResizeMode="CanResizeWithGrip">
+    x:Class="wpf_datagrid.MainWindow"
+    Title="SalesOrder List" Height="450" Width="600" ResizeMode="CanResizeWithGrip" >
 
   <!-- 型を指定すると, 自動的にviewmodelインスタンスを生成 -->
   <Window.DataContext>
@@ -22,8 +22,9 @@
     <!-- viewmodel のプロパティの値・型を整える -->
     <local:EmailConverter x:Key="EmailConverter" />
     <!-- デザイン時にサンプル行を表示 -->
-    <CollectionViewSource x:Key="customerViewSource"
-                          d:DesignSource="{d:DesignInstance {x:Type Models:SalesOrder}, CreateList=True}" />
+    <CollectionViewSource x:Key="soViewSource"
+              d:DesignSource="{d:DesignInstance {x:Type Models:SalesOrder}, CreateList=True}"
+              Source="{Binding GridItems}"/>
   </Window.Resources>
 
   <!-- アプリケーションでは, DockPanel が基本 -->
@@ -83,11 +84,12 @@
                 Command="{x:Static local:MyCommands.NewSalesOrder}"
                 Margin="10,10,0,10" Width="90" />
       </StackPanel>
+      
       <!-- いつでも AutoGenerateColumns="False" で, 列を自分でコントロール -->
       <DataGrid Grid.Row="1" Name="dataGrid"
-                ItemsSource="{Binding Source={StaticResource customerViewSource}}"
+                ItemsSource="{Binding Source={StaticResource soViewSource}}"
                 AutoGenerateColumns="False" Background="CadetBlue" 
-                VerticalScrollBarVisibility="Visible" >
+                VerticalScrollBarVisibility="Visible" CanUserAddRows="False">
         <DataGrid.Columns>
       <!-- この内側での binding は, ItemsSource で指定したオブジェクトのプロパ
         ティを指す -->
@@ -98,11 +100,13 @@
                                    Binding="{Binding Customer.Email, Converter={StaticResource EmailConverter}, Mode=OneWay}" 
                                    ContentBinding="{Binding Customer.Email}" />
           <DataGridCheckBoxColumn Header="C/Gold?" Binding="{Binding Customer.Grade}" />
-          <!-- 値と表示をプロパティ名で指定 -->
-          <DataGridComboBoxColumn Header="Status"
-                                  ItemsSource="{Binding Source={x:Static Models:SalesOrder.StatusList}, Mode=OneWay}" 
-                                  SelectedValuePath="Key" DisplayMemberPath="Value"
-                                  SelectedValueBinding="{Binding Status}" />
+          <!-- 値と表示をプロパティ名で指定
+            DataGrid の場合は, <DataGridTemplateColumn> でいろいろしなくても
+            一撃でコンボボックス作れる -->
+          <DataGridComboBoxColumn Header="Status" IsReadOnly="True"
+                ItemsSource="{Binding Source={x:Static Models:SalesOrder.StatusList}, Mode=OneWay}" 
+                SelectedValuePath="Key" DisplayMemberPath="Value"
+                SelectedValueBinding="{Binding Status, Mode=OneWay}" />
           <!-- DataGridTemplateColumn には CanUserSort プロパティがない。ソート
             不可 -->
           <DataGridTemplateColumn Header="">

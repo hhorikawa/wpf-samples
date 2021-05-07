@@ -21,23 +21,17 @@ namespace wpf_datagrid
     /// </summary>
 public partial class CustomerEditWindow : Window
 {
-    readonly MyApp _app;
-    readonly Model1 _dbContext;
-
     event EventHandler Changed;
 
     public CustomerEditWindow(int id, EventHandler changedHandler)
     {
-        _app = (MyApp) Application.Current;
-        _dbContext = _app.dbContext;
-
         InitializeComponent();
 
         Changed += changedHandler;
 
         if (id > 0) {
             // 見つからないときは例外.
-            var customer = _dbContext.Customers.Single(c => c.Id == id);
+            var customer = MyApp.dbContext.Customers.Single(c => c.Id == id);
             DataContext = customer;
             okButton.Content = "Update";
         }
@@ -71,9 +65,9 @@ public partial class CustomerEditWindow : Window
 
         r.LockVersion++; // TODO: check
         if (r.Id == 0)
-            _dbContext.Customers.Add(r);
+            MyApp.dbContext.Customers.Add(r);
         try { 
-            _dbContext.SaveChanges();
+            MyApp.dbContext.SaveChanges();
         }
         catch (DbEntityValidationException ex) {
             var msg = "";
@@ -94,14 +88,6 @@ public partial class CustomerEditWindow : Window
     void cancelButton_Click(object sender, RoutedEventArgs e)
     {
         Close();
-    }
-
-
-    void Window_Closed(object sender, EventArgs e)
-    {
-        Customer r = (Customer) DataContext;
-        if (r.Id > 0)
-            _app.customerEditWindows.Remove(r.Id);
     }
 
 } // class CustomerWindow

@@ -8,7 +8,7 @@
         xmlns:Models="clr-namespace:wpf_datagrid.Models"
         x:Class="wpf_datagrid.CustomerEditWindow"
         mc:Ignorable="d"
-        Title="Customer Edit" Width="400" SizeToContent="Height" Closed="Window_Closed">
+        Title="Customer Edit" Width="400" SizeToContent="Height" >
   <Window.DataContext>
     <Models:Customer />
   </Window.DataContext>
@@ -125,6 +125,8 @@
       <Button Name="cancelButton" IsCancel="True" Margin="10,10,10,0" Width="80" Click="cancelButton_Click" >Cancel</Button>
       <Button Name="okButton" IsDefault="True" Margin="10,10,10,0" Width="80"
               Click="okButton_Click" Content="Create" />
+      <!-- TODO: パラメータを渡すには? -->
+      <Button Width="80" Command="{x:Static local:MyCommands.NewSalesOrder}">新しい受注...</Button>
     </StackPanel>
   </Grid>
 </Window>

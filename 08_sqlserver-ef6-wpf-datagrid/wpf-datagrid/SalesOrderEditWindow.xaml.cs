@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
@@ -17,32 +19,54 @@ using wpf_datagrid.Models;
 
 namespace wpf_datagrid
 {
+/*
+// Entity Framework レコードクラスから派生させるときは, [NotMapped] を付けない
+// と, DB に保存しない場合であっても, "Discriminator" 列が自動的に生成される.
+// => そもそも, 派生クラスは, dbContext に追加する時点でエラーになる。
+//    DB に保存しない class に派生させるのは上手くいかない.
+[NotMapped]
+class ExSalesOrder : SalesOrder, INotifyPropertyChanged
+{
+}
+*/
+
     /// <summary>
     /// SalesOrderWindow.xaml の相互作用ロジック
     /// </summary>
 public partial class SalesOrderEditWindow : Window
 {
-    readonly Model1 _dbContext = ((MyApp) Application.Current).dbContext;
+    event EventHandler Changed;
 
-    public SalesOrderEditWindow(int id)
+    public SalesOrderEditWindow(int id, EventHandler changedHandler)
     {
         InitializeComponent();
 
+        Changed += changedHandler;
+
         if (id > 0) {
-            var so = _dbContext.SalesOrders
+            var so = MyApp.dbContext.SalesOrders
                         .Where(s => s.Id == id)
-                        .Include(s => s.Details) // 明細表に表示する
+                        .Include(s => s.Details) // Eager loading: 明細表に表示する
                         .First();
             DataContext = so;
+            setCustomerName(so.Customer);
             okButton.Content = "Update";
         }
     }
+
+    void setCustomerName(Customer c)
+    {
+        if (c == null)
+            throw new ArgumentNullException();
+        customerName.Text = (c.Surname != null ? c.Surname + "/" : "") + c.GivenName;
+    }
+
 
     void Window_Loaded(object sender, RoutedEventArgs e)
     {
         // XAML 内のリソース要素を取得する。
         var salesOrderDetailViewSource =
-            (CollectionViewSource) (this.FindResource("salesOrderDetailsViewSource"));
+            (CollectionViewSource) this.FindResource("salesOrderDetailsViewSource");
             // CollectionViewSource.Source プロパティを設定してデータを読み込みます:
             // salesOrderViewSource.Source = [汎用データ ソース]
     }
@@ -50,11 +74,13 @@ public partial class SalesOrderEditWindow : Window
     void okButton_Click(object sender, RoutedEventArgs e)
     {
         SalesOrder so = (SalesOrder) DataContext;
+        
         so.LockVersion++; // TODO: check
         if (so.Id == 0)
-            _dbContext.SalesOrders.Add(so);
+            MyApp.dbContext.SalesOrders.Add(so);
+
         try {
-            _dbContext.SaveChanges();
+            MyApp.dbContext.SaveChanges();
         }
         catch (DbEntityValidationException ex) {
             var msg = "";
@@ -68,12 +94,56 @@ public partial class SalesOrderEditWindow : Window
             return;
         }
 
+        Changed.Invoke(this, null);
         Close();
     }
 
     void cancelButton_Click(object sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+
+    private void customerPickUpButton_Click(object sender, RoutedEventArgs e)
+    {
+        var so = (SalesOrder) DataContext;
+
+        var dialog = new CustomerPickUp();
+        if (dialog.ShowDialog() == true) {
+            var c = MyApp.dbContext.Customers.Single(p => p.Id == dialog.customerId);
+
+            so.CustomerId = c.Id;
+            // 値のコピー。記録のため、変化しうるものはコピーすべき (定石)
+            so.CustomerShipTo = c.ShipTo;
+            //so.RaisePropertyChanged("CustomerShipTo");
+
+            setCustomerName(c);
+        }
+    }
+
+
+    // "新しい明細" グループボックス
+    private void productPickUpButton_Click(object sender, RoutedEventArgs e)
+    {
+        var sod = (SalesOrderDetail) newDetail.DataContext;
+
+        var dialog = new ProductPickUp();
+        if (dialog.ShowDialog() == true) {
+            var pro = MyApp.dbContext.Products
+                                    .Single(x => x.Id == dialog.productId);
+            sod.ProductId = pro.Id;
+            sod.Product = pro;
+            productName.Text = pro.Name;
+        }
+    }
+
+    private void detailAddButton_Click(object sender, RoutedEventArgs e)
+    {
+        var so = (SalesOrder) DataContext;
+        var sod = (SalesOrderDetail) newDetail.DataContext;
+        sod.Status = SalesOrderStatus.New;
+        so.Details.Add(sod);
+        salesOrderDetailsDataGrid.Items.Refresh();
     }
 } // class SalesOrderWindow
 

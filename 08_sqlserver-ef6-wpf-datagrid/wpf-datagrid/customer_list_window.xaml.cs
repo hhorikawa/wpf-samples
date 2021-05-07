@@ -18,26 +18,6 @@ using wpf_datagrid.Models;
 namespace wpf_datagrid
 {
 
-public class EnumStringConverter : IValueConverter
-{
-    // enum を文字列に変換する
-    // enum 型は名前が取れる。すごいな。
-    public object Convert(object value, Type targetType, object parameter,
-                      CultureInfo culture)
-    {
-        if (value != null && value.GetType().IsEnum)
-            return value.ToString();
-
-        return null;
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-
 // メソッドの直行性が全然ない。
 // ObservableCollection<> に AddRangeメソッドを追加する。
 // ちなみに, 要素一つずつ Add() すると, つどイベントが発火するのでパフォーマン
@@ -54,21 +34,15 @@ public class ExObservableCollection<T>:
     }
 }
 
-    /// <summary>
-    /// customer_list_window.xaml の相互作用ロジック
-    /// </summary>
+
+// MainWindow と異なり, view model を使わない例
 public partial class CustomerListWindow : Window
 {
-    readonly MyApp _app;
-    readonly Model1 _dbContext;
-
-    readonly ExObservableCollection<Customer> _customerList = new ExObservableCollection<Customer>();
+    readonly ExObservableCollection<Customer> _customerList =
+                                    new ExObservableCollection<Customer>();
 
     public CustomerListWindow()
     {
-        _app = (MyApp) Application.Current;
-        _dbContext = _app.dbContext;
-
         InitializeComponent();
 
         // CommandBindings は readonly のため、単に代入は不可
@@ -79,11 +53,12 @@ public partial class CustomerListWindow : Window
     // Event handler
     void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        _customerList.AddRange(from c in _dbContext.Customers
+        _customerList.AddRange(from c in MyApp.dbContext.Customers
                                select c);
 
         // XAML Window.Resources の要素を取得
-        var customerViewSource = (CollectionViewSource) (this.FindResource("customerViewSource"));
+        var customerViewSource =
+                (CollectionViewSource) this.FindResource("customerViewSource");
             // CollectionViewSource.Source プロパティを設定してデータを読み込みます:
         customerViewSource.Source = _customerList;
         // 何も指定しない場合は, CollectionViewSource.View は,
@@ -91,16 +66,11 @@ public partial class CustomerListWindow : Window
     }
 
 
-    internal void CustomerUpdated()
+    internal void OnCustomerUpdated()
     {
         _customerList.Clear();
-        _customerList.AddRange(from c in _dbContext.Customers
+        _customerList.AddRange(from c in MyApp.dbContext.Customers
                                select c);
-    }
-
-    void Window_Closed(object sender, EventArgs e)
-    {
-        _app.customerListWindows.Remove(this);
     }
 
 } // class CustomerListWindow 

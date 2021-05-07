@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using wpf_datagrid.Models;
 
 namespace wpf_datagrid
 {
@@ -43,13 +44,15 @@ namespace wpf_datagrid
   CollectionView.SortDescriptions property で並べ替えを指定。
   `System.Windows.Controls.ItemCollection` は WPF 各コントロールの内容を保持する。目的が違う。
  */
+
 class MainViewModel : DependencyObject
 {
-    // DataGrid.ItemsSource
+    // DataGrid.ItemsSource -> soViewSource
+    // CollectionViewSource.Source -> GridItems
     public static readonly DependencyProperty GridItemsProperty =
             DependencyProperty.Register("GridItems",
-                                    typeof(System.Collections.IList),
-                                    typeof(MainViewModel));
+                                typeof(ExObservableCollection<SalesOrder>),
+                                typeof(MainViewModel));
 
     static MainViewModel()
     {
@@ -63,6 +66,29 @@ class MainViewModel : DependencyObject
     // コンストラクタ
     public MainViewModel()
     {
+        var app = (MyApp) Application.Current;
+        app.SalesOrderUpdated += OnSalesOrderUpdated;
+
+        SetValue(GridItemsProperty, new ExObservableCollection<SalesOrder>());
+        itemsRefresh();
+    }
+
+    void itemsRefresh()
+    {
+        var items = (ExObservableCollection<SalesOrder>) GetValue(GridItemsProperty);
+        items.Clear();
+        // TODO: フィルタの考慮
+        var query = (from so in MyApp.dbContext.SalesOrders
+                     join c in MyApp.dbContext.Customers on so.CustomerId equals c.Id
+                     orderby so.Id
+                     select so).Take(500).ToList<SalesOrder>();
+        items.Clear();
+        items.AddRange(query);
+    }
+
+    private void OnSalesOrderUpdated(object sender, EventArgs e)
+    {
+        itemsRefresh();
     }
 
     // ウィンドウを複数開くときは, static メソッドにしたうえで, sender に基づ
@@ -71,39 +97,15 @@ class MainViewModel : DependencyObject
     {
         MainWindow view = (MainWindow) sender;
         MainViewModel self = (MainViewModel) view.DataContext;
-
-        var dbContext = new Models.Model1();
-        var query = (from t in dbContext.SalesOrders
-                    orderby t.Id
-                    select t).Take(500);
-        var list = query.ToList();
-        self.SetValue(GridItemsProperty, list);
+        self.itemsRefresh();
     }
 }
 
 
-[ValueConversion(typeof(string), typeof(Uri))] // sourceType, targetType
-public class EmailConverter : IValueConverter
-{
-    // The source (viewmodel) to the target (WPF element)
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        Uri email = new Uri("mailto:" + (string) value);
-        return email;
-    }
-
-    // The target (WPF element) to the source (viewmodel)
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-    /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
-    /// </summary>
+// View model を使う例 
 public partial class MainWindow : Window
 {
+    // コンストラクタ
     public MainWindow()
     {
         InitializeComponent();
@@ -112,6 +114,8 @@ public partial class MainWindow : Window
         foreach (var binding in MyCommands.CommandBindings)
             CommandBindings.Add(binding);
     }
+
 } // class MainWindow
+
 
 }

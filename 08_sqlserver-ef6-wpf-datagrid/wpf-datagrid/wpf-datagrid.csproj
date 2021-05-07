@@ -58,6 +58,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="commands.cs" />
+    <Compile Include="converters.cs" />
+    <Compile Include="CustomerPickUp.xaml.cs">
+      <DependentUpon>CustomerPickUp.xaml</DependentUpon>
+    </Compile>
     <Compile Include="customer_list_window.xaml.cs">
       <DependentUpon>customer_list_window.xaml</DependentUpon>
     </Compile>
@@ -65,11 +69,18 @@
     <Compile Include="Migrations\202104291009408_SetupTables.designer.cs">
       <DependentUpon>202104291009408_SetupTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="ProductPickUp.xaml.cs">
+      <DependentUpon>ProductPickUp.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SalesOrderEditWindow.xaml.cs">
       <DependentUpon>SalesOrderEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="validators.cs" />
     <Page Include="CustomerEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomerPickUp.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -92,6 +103,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ProductPickUp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SalesOrderEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
