@@ -1,15 +1,21 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace MVVM
 {
-    public class ViewModelBase : INotifyPropertyChanged
-    {
-        //basic ViewModelBase
-        internal void RaisePropertyChanged(string prop)
-        {
-            if (PropertyChanged != null) { PropertyChanged(this, new PropertyChangedEventArgs(prop)); }
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
 
+public abstract class ViewModelBase : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    //basic ViewModelBase
+    internal void RaisePropertyChanged([CallerMemberName] string prop = null)
+    {
+        if (PropertyChanged != null) {
+            PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
     }
+
+} // class ViewModelBase
+
 }

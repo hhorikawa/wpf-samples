@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -10,8 +10,8 @@ namespace SimpleEditor.ViewModel
     /// <summary>
     /// View model for scene class
     /// </summary>
-    public class SceneViewModel:ViewModelBase
-    {
+public class SceneViewModel : ViewModelBase
+{
         private Scene _scene;
 
         #region commands
@@ -38,12 +38,12 @@ namespace SimpleEditor.ViewModel
 
         #endregion
 
-        #region public properties
+    // Public properties //////////////////////////////////
 
         /// <summary>
         /// Gets layers viewmodel observable collection
         /// </summary>
-        public ObservableCollection<LayerViewModel> Layers { get; private set; }
+    public ObservableCollection<LayerViewModel> Layers { get; private set; }
 
         /// <summary>
         /// Gets or sets selected layer index
@@ -146,20 +146,20 @@ namespace SimpleEditor.ViewModel
         }
 
 
-        #endregion
+    // コンストラクタ ////////////////////////////////////////////////
 
-        public SceneViewModel(Scene scene)
-        {
-            Layers = new ObservableCollection<LayerViewModel>();
-            Scene = scene;
-            Color = Color.FromRgb(Scene.Color.R, Scene.Color.G, Scene.Color.B);
-            Thickness = Scene.Thickness;
+    public SceneViewModel(Scene scene)
+    {
+        Layers = new ObservableCollection<LayerViewModel>();
+        Scene = scene;
+        Color = Color.FromRgb(Scene.Color.R, Scene.Color.G, Scene.Color.B);
+        Thickness = Scene.Thickness;
           
-            AddLayerCommand = new RelayCommand(param => Scene.AddNewLayer() );
-            RemoveLayerCommand = new RelayCommand(param => Scene.RemoveSelectedLayer(),param=> Scene.CanRemoveSelectedLayer());
-            UpLayerCommand = new RelayCommand(param => Scene.MoveSelectedLayerUp(), param => Scene.CanMoveSelectedLayerUp());
-            DownLayerCommand = new RelayCommand(param => Scene.MoveSelectedLayerDown(), param=>Scene.CanMoveSelectedLayerDown());
-        }
+        AddLayerCommand = new RelayCommand<object>(param => Scene.AddNewLayer() );
+        RemoveLayerCommand = new RelayCommand<object>(param => Scene.RemoveSelectedLayer(),param=> Scene.CanRemoveSelectedLayer());
+        UpLayerCommand = new RelayCommand<object>(param => Scene.MoveSelectedLayerUp(), param => Scene.CanMoveSelectedLayerUp());
+        DownLayerCommand = new RelayCommand<object>(param => Scene.MoveSelectedLayerDown(), param=>Scene.CanMoveSelectedLayerDown());
+    }
 
 
         private void _scene_LayersOrderChanged(object sender, EventArgs e)

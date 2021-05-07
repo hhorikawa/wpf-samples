@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,9 +12,9 @@ namespace SimpleEditor.Controls
     /// <summary>
     /// Control to draw Scene object
     /// </summary>
-    public class DrawControl:Control
-    {
-        #region dependency properties
+public class DrawControl : Control
+{
+    // Dependency properties //////////////////////////////////////////////
 
         /// <summary>
         /// Dependency property. Scene for drawing control
@@ -29,7 +29,6 @@ namespace SimpleEditor.Controls
         public static readonly DependencyProperty ActualSizeProperty =
             DependencyProperty.Register("ActualSize", typeof (Size), typeof (DrawControl));
 
-        #endregion
 
         #region public properties
 
@@ -82,14 +81,16 @@ namespace SimpleEditor.Controls
             this.InvalidateVisual();
         }
 
-        #region protected methods
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseDown(e);
-            var mousePos = e.GetPosition(this);
-            Scene.PressDown(new Point((int)mousePos.X,(int)mousePos.Y));
-        }
+    // Protected methods ////////////////////////////////////////////////////
+
+    protected override void OnMouseDown(MouseButtonEventArgs e)
+    {
+        base.OnMouseDown(e);
+        Mouse.Capture(this);
+        var mousePos = e.GetPosition(this);
+        Scene.PressDown(new Point((int)mousePos.X,(int)mousePos.Y));
+    }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
@@ -105,12 +106,13 @@ namespace SimpleEditor.Controls
             Scene.PressUp(new Point((int)mousePos.X, (int)mousePos.Y));
         }
 
-        protected override void OnMouseUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseUp(e);
-            var mousePos = e.GetPosition(this);
-            Scene.PressUp(new Point((int)mousePos.X, (int)mousePos.Y));
-        }
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        base.OnMouseUp(e);
+        var mousePos = e.GetPosition(this);
+        Scene.PressUp(new Point((int)mousePos.X, (int)mousePos.Y));
+        Mouse.Capture(null);
+    }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
@@ -137,8 +139,6 @@ namespace SimpleEditor.Controls
                 drawingContext.DrawImage(resultBitmap.ToWpfBitmap(),new Rect(0,0,ActualWidth,ActualHeight));
             }
         }
-
-        #endregion
 
     }
 }

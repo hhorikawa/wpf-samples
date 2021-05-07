@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -20,8 +20,8 @@ namespace SimpleEditor.Model
     /// Scene manage layer logic. 
     /// Inherited from IDisposable, because has Pen and Brush (GDI unmanaged objects) and layers inside has unmanaged resources
     /// </summary>
-    public class Scene:IDisposable
-    {
+public class Scene : IDisposable
+{
         #region private fields
 
         private bool _pressed;

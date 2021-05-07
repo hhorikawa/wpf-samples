@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -9,17 +9,16 @@ namespace SimpleEditor.Model
     /// <summary>
     /// Layer class. Contains drawing logic
     /// </summary>
-    public class Layer : IDisposable
-    {
-        #region private fields
+public class Layer : IDisposable
+{
+    // Private fields /////////////////////////////////////////////////////
 
-        private bool _isVisible = true;
-        private Point _position;
-        private Size _size;
-        private Bitmap _bitmap;
-        private Bitmap _bufferBitmap;
+    private bool _isVisible = true;
+    private Point _position;
+    private Size _size;
+    private Bitmap _bitmap;
+    private Bitmap _bufferBitmap;
 
-        #endregion
 
         #region public properties
 
