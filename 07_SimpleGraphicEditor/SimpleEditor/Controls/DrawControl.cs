@@ -12,6 +12,7 @@ namespace SimpleEditor.Controls
     /// <summary>
     /// Control to draw Scene object
     /// </summary>
+// 独自コントロールは, System.Windows.Controls.Control クラスから派生させる
 public class DrawControl : Control
 {
     // Dependency properties //////////////////////////////////////////////
@@ -19,26 +20,23 @@ public class DrawControl : Control
         /// <summary>
         /// Dependency property. Scene for drawing control
         /// </summary>
-        public static readonly DependencyProperty SceneProperty =
+    public static readonly DependencyProperty SceneProperty =
             DependencyProperty.Register("Scene", typeof (Scene), typeof (DrawControl),
                 new PropertyMetadata(new PropertyChangedCallback(SceneChanged)));
 
         /// <summary>
         /// Dependency property. Actual size of drawing
         /// </summary>
-        public static readonly DependencyProperty ActualSizeProperty =
-            DependencyProperty.Register("ActualSize", typeof (Size), typeof (DrawControl));
+    public static readonly DependencyProperty ActualSizeProperty =
+                DependencyProperty.Register("ActualSize", typeof (Size),
+                                            typeof (DrawControl));
 
-
-        #region public properties
 
         /// <summary>
         /// Scene for drawing control
-        /// </summary>
-        public Scene Scene
-        {
-            get
-            {
+    // 依存プロパティのためのヘルパプロパティ
+    public Scene Scene {
+        get {
                 return (Scene)GetValue(SceneProperty);
             }
             set
@@ -50,10 +48,8 @@ public class DrawControl : Control
         /// <summary>
         /// Actual size of drawing
         /// </summary>
-        public Size ActualSize
-        {
-            get
-            {
+    public Size ActualSize {
+        get {
                 return (Size)GetValue(ActualSizeProperty);
             }
             set
@@ -62,10 +58,11 @@ public class DrawControl : Control
             }
         }
 
-        #endregion
 
-        static void SceneChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
+    // 依存プロパティが変更された
+    static void SceneChanged(DependencyObject sender,
+                             DependencyPropertyChangedEventArgs e)
+    {
             if (e.NewValue!=null)
                 ((Scene)e.NewValue).SceneChanged += ((DrawControl)sender).InvalidateScene;
             ((DrawControl)sender).InvalidateVisual();
@@ -84,6 +81,7 @@ public class DrawControl : Control
 
     // Protected methods ////////////////////////////////////////////////////
 
+    // @override UIElement
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
@@ -92,15 +90,17 @@ public class DrawControl : Control
         Scene.PressDown(new Point((int)mousePos.X,(int)mousePos.Y));
     }
 
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
             base.OnMouseMove(e);
             var mousePos = e.GetPosition(this);
             Scene.Move(new Point((int)mousePos.X, (int)mousePos.Y));
         }
 
-        protected override void OnMouseLeave(MouseEventArgs e)
-        {
+
+    protected override void OnMouseLeave(MouseEventArgs e)
+    {
             base.OnMouseLeave(e);
             var mousePos = e.GetPosition(this);
             Scene.PressUp(new Point((int)mousePos.X, (int)mousePos.Y));
@@ -114,8 +114,10 @@ public class DrawControl : Control
         Mouse.Capture(null);
     }
 
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
-        {
+
+    // @override FrameworkElement
+    protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+    {
             base.OnPropertyChanged(e);
             if ((e.Property == ActualHeightProperty) | (e.Property == ActualWidthProperty))
             {
@@ -123,17 +125,20 @@ public class DrawControl : Control
             }
         }
 
+
         /// <summary>
         /// Draw scene bitmap in context
         /// </summary>
         /// <param name="drawingContext">Drawing context</param>
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            base.OnRender(drawingContext);          
+    // @override UIElement
+    // 自前で描画するときは, このメソッドを override すればよい.
+    protected override void OnRender(DrawingContext drawingContext)
+    {
+        base.OnRender(drawingContext);
             drawingContext.DrawRectangle(new SolidColorBrush(Colors.White), null, new Rect(0, 0, this.ActualWidth, this.ActualHeight));
             if (Scene == null)
                 return;
-            
+
             using (var resultBitmap = Scene.DrawToBitmap((int) ActualWidth, (int) ActualHeight))
             {
                 drawingContext.DrawImage(resultBitmap.ToWpfBitmap(),new Rect(0,0,ActualWidth,ActualHeight));

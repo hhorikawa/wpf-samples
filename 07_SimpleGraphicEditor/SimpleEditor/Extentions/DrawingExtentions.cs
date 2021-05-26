@@ -5,15 +5,16 @@ using System.Windows.Media.Imaging;
 
 namespace SimpleEditor.Extentions
 {
-    public static class DrawingExtensions
-    {
+
+public static class DrawingExtensions
+{
         /// <summary>
         /// Converts System.Drawing.Bitmap to BitmapSource
         /// </summary>
         /// <param name="bitmap">Bitmap</param>
         /// <returns>WPF BitmapSource</returns>
-        public static BitmapSource ToWpfBitmap(this Bitmap bitmap)
-        {
+    public static BitmapSource ToWpfBitmap(this Bitmap bitmap)
+    {
             using (var stream = new MemoryStream())
             {
                 bitmap.Save(stream, ImageFormat.Png);

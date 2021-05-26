@@ -15,9 +15,9 @@ using Point = System.Drawing.Point;
 
 namespace SimpleEditor.Model
 {
-    
+
     /// <summary>
-    /// Scene manage layer logic. 
+    /// Scene manage layer logic.
     /// Inherited from IDisposable, because has Pen and Brush (GDI unmanaged objects) and layers inside has unmanaged resources
     /// </summary>
 public class Scene : IDisposable
@@ -35,10 +35,8 @@ public class Scene : IDisposable
 
         #endregion
 
-        private Layer SelectedLayer
-        {
-            get
-            {
+    private Layer SelectedLayer {
+        get {
                 if (SelectedLayerIndex == -1)
                     return null;
 
@@ -51,10 +49,8 @@ public class Scene : IDisposable
         /// <summary>
         /// Gets or sets current brush color
         /// </summary>
-        public Color Color
-        {
-            get
-            {
+    public Color Color {
+        get {
                 return _color;
             }
             set
@@ -82,7 +78,7 @@ public class Scene : IDisposable
 
         /// <summary>
         /// Gets or sets current selected layer index,
-        /// if scene has layers, selected index should be positive, 
+        /// if scene has layers, selected index should be positive,
         /// if has no layers SelectedLayerIndex=-1
         /// </summary>
         public int SelectedLayerIndex
@@ -147,9 +143,9 @@ public class Scene : IDisposable
             _points = new List<Point>();
             _selectedLayerIndex = -1;
 
-            Layers = new List<Layer>();        
+            Layers = new List<Layer>();
             Color = Color.Black;
-            Thickness = 5;     
+            Thickness = 5;
         }
 
         #region public methods
@@ -162,8 +158,8 @@ public class Scene : IDisposable
         {
             var lst = Layers.Select(layer => new LayerBundle()
             {
-                Bitmap = layer.Bitmap, 
-                Position = layer.Position, 
+                Bitmap = layer.Bitmap,
+                Position = layer.Position,
                 Size = layer.Size,
                 IsVisible = layer.IsVisible
             }).ToList();
@@ -178,7 +174,7 @@ public class Scene : IDisposable
         /// <param name="size">Canvas size</param>
         public void Export(string filename, Size size)
         {
-            var bmp = DrawToBitmap(size.Width, size.Height);           
+            var bmp = DrawToBitmap(size.Width, size.Height);
             bmp.Save(filename,ImageFormat.Png);
         }
 
@@ -193,7 +189,7 @@ public class Scene : IDisposable
             var layerBundles = (List<LayerBundle>)dcs.ReadObject(File.OpenRead(filename));
             var scene = new Scene();
             scene.LayersFromBundle(layerBundles);
-          
+
             return scene;
         }
 
@@ -341,7 +337,7 @@ public class Scene : IDisposable
                 SelectedLayer.DrawPoint(_brush, Thickness, normalized);
                 _points = new List<Point>();
                 _points.Add(p);
-            }          
+            }
         }
 
         /// <summary>
@@ -419,7 +415,7 @@ public class Scene : IDisposable
         }
 
         /// <summary>
-        /// Checks that drawed point or line in layer bounds, 
+        /// Checks that drawed point or line in layer bounds,
         /// if not increase bounds to contains drawing
         /// </summary>
         /// <param name="points">Points of drawing</param>
@@ -500,10 +496,10 @@ public class Scene : IDisposable
             {
                 StartCap = LineCap.Round,
                 EndCap = LineCap.Round,
-                LineJoin = LineJoin.Round            
+                LineJoin = LineJoin.Round
             };
         }
-        #endregion 
+        #endregion
 
     }
 }

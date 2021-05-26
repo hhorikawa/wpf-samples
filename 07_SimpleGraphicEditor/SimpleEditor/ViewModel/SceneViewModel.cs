@@ -48,11 +48,9 @@ public class SceneViewModel : ViewModelBase
         /// <summary>
         /// Gets or sets selected layer index
         /// </summary>
-        public int SelectedLayerIndex
-        {
-            get { return Scene.SelectedLayerIndex; }
-            set
-            { 
+    public int SelectedLayerIndex {
+        get { return Scene.SelectedLayerIndex; }
+        set {
                 if (value == -1)
                     return;
                 Scene.SelectedLayerIndex = value;
@@ -154,7 +152,7 @@ public class SceneViewModel : ViewModelBase
         Scene = scene;
         Color = Color.FromRgb(Scene.Color.R, Scene.Color.G, Scene.Color.B);
         Thickness = Scene.Thickness;
-          
+
         AddLayerCommand = new RelayCommand<object>(param => Scene.AddNewLayer() );
         RemoveLayerCommand = new RelayCommand<object>(param => Scene.RemoveSelectedLayer(),param=> Scene.CanRemoveSelectedLayer());
         UpLayerCommand = new RelayCommand<object>(param => Scene.MoveSelectedLayerUp(), param => Scene.CanMoveSelectedLayerUp());
@@ -164,7 +162,7 @@ public class SceneViewModel : ViewModelBase
 
         private void _scene_LayersOrderChanged(object sender, EventArgs e)
         {
-            InvalidateLayerList();   
+            InvalidateLayerList();
         }
 
         private void InvalidateLayerList()
