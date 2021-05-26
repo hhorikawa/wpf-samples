@@ -37,6 +37,14 @@ public class Customer: RecordBase
     [Column("given_name"), Required]
     public string GivenName { get; set; }
 
+    // データベースに保存しない
+    [NotMapped]
+    public string FullName {
+        get {
+            return (Surname != null ? Surname + "/" : "") + GivenName;
+        }
+    }
+
     [Required]
     public string Email { get; set; }
 

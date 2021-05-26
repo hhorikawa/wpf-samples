@@ -49,16 +49,9 @@ public partial class SalesOrderEditWindow : Window
                         .Include(s => s.Details) // Eager loading: 明細表に表示する
                         .First();
             DataContext = so;
-            setCustomerName(so.Customer);
+            customerName.Text = so.Customer.FullName;
             okButton.Content = "Update";
         }
-    }
-
-    void setCustomerName(Customer c)
-    {
-        if (c == null)
-            throw new ArgumentNullException();
-        customerName.Text = (c.Surname != null ? c.Surname + "/" : "") + c.GivenName;
     }
 
 
@@ -71,11 +64,16 @@ public partial class SalesOrderEditWindow : Window
             // salesOrderViewSource.Source = [汎用データ ソース]
     }
 
+    // [Create] / [Update]
     void okButton_Click(object sender, RoutedEventArgs e)
     {
         SalesOrder so = (SalesOrder) DataContext;
-        
+
         so.LockVersion++; // TODO: check
+        var customer = MyApp.dbContext.Customers.First(c => c.Id == so.CustomerId);
+        if (so.CustomerShipTo != customer.ShipTo)
+            customer.ShipTo = so.CustomerShipTo;
+
         if (so.Id == 0)
             MyApp.dbContext.SalesOrders.Add(so);
 
@@ -85,7 +83,7 @@ public partial class SalesOrderEditWindow : Window
         catch (DbEntityValidationException ex) {
             var msg = "";
             foreach (var err in ex.EntityValidationErrors) {
-                foreach (var f in err.ValidationErrors) { 
+                foreach (var f in err.ValidationErrors) {
                     msg += f.ErrorMessage;
                 }
             }
@@ -117,12 +115,13 @@ public partial class SalesOrderEditWindow : Window
             so.CustomerShipTo = c.ShipTo;
             //so.RaisePropertyChanged("CustomerShipTo");
 
-            setCustomerName(c);
+            // 表示だけ更新
+            customerName.Text = c.FullName;
         }
     }
 
 
-    // "新しい明細" グループボックス
+    // "新しい明細" グループボックス -> [製品の選択] ボタン
     private void productPickUpButton_Click(object sender, RoutedEventArgs e)
     {
         var sod = (SalesOrderDetail) newDetail.DataContext;
@@ -137,12 +136,22 @@ public partial class SalesOrderEditWindow : Window
         }
     }
 
+    // "新しい明細" グループボックス -> [追加] ボタン
     private void detailAddButton_Click(object sender, RoutedEventArgs e)
     {
         var so = (SalesOrder) DataContext;
         var sod = (SalesOrderDetail) newDetail.DataContext;
+
         sod.Status = SalesOrderStatus.New;
+        if (sod.ProductId == 0) {
+            MessageBox.Show("製品が選択されていません");
+            return;
+        }
+        if (sod.Comment == null)
+            sod.Comment = "";
+
         so.Details.Add(sod);
+        newDetail.DataContext = new SalesOrderDetail();
         salesOrderDetailsDataGrid.Items.Refresh();
     }
 } // class SalesOrderWindow

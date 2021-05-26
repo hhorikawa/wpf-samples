@@ -65,7 +65,8 @@
               VerticalScrollBarVisibility="Visible"
               RowDetailsVisibilityMode="VisibleWhenSelected" CanUserAddRows="False">
       <DataGrid.Columns>
-        <DataGridTextColumn x:Name="idColumn" Binding="{Binding Id}" Header="Id" IsReadOnly="True" Width="SizeToHeader"/>
+        <DataGridTextColumn x:Name="idColumn" Binding="{Binding Id}" Header="Id"
+                            IsReadOnly="True" Width="SizeToHeader"/>
         <DataGridTextColumn Binding="{Binding Product.Name}" Header="Product"
                             Width="SizeToHeader"/>
         <!-- コンボボックスのときは、簡便な記法がある -->
@@ -73,6 +74,7 @@
               ItemsSource="{Binding Source={x:Static Models:SalesOrder.StatusList}, Mode=OneWay}"
               SelectedValuePath="Key" DisplayMemberPath="Value"
               SelectedValueBinding="{Binding Status, UpdateSourceTrigger=PropertyChanged}" />
+        <DataGridTextColumn Binding="{Binding Comment}" Header="Comment" Width="150" />
       </DataGrid.Columns>
     </DataGrid>
 
@@ -84,6 +86,8 @@
         </StackPanel.DataContext>
         <TextBlock HorizontalAlignment="Stretch" Name="productName">Product</TextBlock>
         <Button Click="productPickUpButton_Click">選択...</Button>
+        <Label>Comment:</Label>
+        <TextBox Text="{Binding Comment}" Width="150" />
         <Button Width="60" Click="detailAddButton_Click">追加</Button>
       </StackPanel>
     </GroupBox>

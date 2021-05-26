@@ -69,6 +69,10 @@
     <Compile Include="Migrations\202104291009408_SetupTables.designer.cs">
       <DependentUpon>202104291009408_SetupTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202105260214222_addcomment.cs" />
+    <Compile Include="Migrations\202105260214222_addcomment.designer.cs">
+      <DependentUpon>202105260214222_addcomment.cs</DependentUpon>
+    </Compile>
     <Compile Include="ProductPickUp.xaml.cs">
       <DependentUpon>ProductPickUp.xaml</DependentUpon>
     </Compile>
@@ -133,6 +137,9 @@
     </Compile>
     <EmbeddedResource Include="Migrations\202104291009408_SetupTables.resx">
       <DependentUpon>202104291009408_SetupTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202105260214222_addcomment.resx">
+      <DependentUpon>202105260214222_addcomment.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -83,10 +83,13 @@ public partial class MyApp : Application
         }
     }
 
+    // sales order edit から callback される.
     void OnSalesOrderChanged(object sender, EventArgs e)
     {
-        // 単に発火させる
+        // 単に発火させる -> sales order list window に伝達
         SalesOrderUpdated(sender, e);
+        // 顧客情報の更新も発生
+        OnCustomerChanged(sender, e);
     }
 
 

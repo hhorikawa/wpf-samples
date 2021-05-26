@@ -11,7 +11,7 @@
         xmlns:Models="clr-namespace:wpf_datagrid.Models"
         mc:Ignorable="d"
     x:Class="wpf_datagrid.MainWindow"
-    Title="SalesOrder List" Height="450" Width="600" ResizeMode="CanResizeWithGrip" >
+    Title="SalesOrder List" Height="450" Width="800" ResizeMode="CanResizeWithGrip" >
 
   <!-- 型を指定すると, 自動的にviewmodelインスタンスを生成 -->
   <Window.DataContext>
@@ -93,13 +93,14 @@
         <DataGrid.Columns>
       <!-- この内側での binding は, ItemsSource で指定したオブジェクトのプロパ
         ティを指す -->
-          <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
-          <DataGridTextColumn Header="発送先"  Binding="{Binding CustomerShipTo}"  />
+          <DataGridTextColumn Header="Id" Binding="{Binding Id, Mode=OneWay}" />
+          <DataGridTextColumn Header="顧客" Binding="{Binding Customer.FullName, Mode=OneWay}" />
+          <DataGridTextColumn Header="発送先"  Binding="{Binding CustomerShipTo, Mode=OneWay}" />
           <!-- Uri with the Binding prop. and the text with the ContentBinding prop. -->
           <DataGridHyperlinkColumn Header="C/Email" 
                                    Binding="{Binding Customer.Email, Converter={StaticResource EmailConverter}, Mode=OneWay}" 
                                    ContentBinding="{Binding Customer.Email}" />
-          <DataGridCheckBoxColumn Header="C/Gold?" Binding="{Binding Customer.Grade}" />
+          <DataGridCheckBoxColumn Header="C/Gold?" Binding="{Binding Customer.Grade, Mode=OneWay}" />
           <!-- 値と表示をプロパティ名で指定
             DataGrid の場合は, <DataGridTemplateColumn> でいろいろしなくても
             一撃でコンボボックス作れる -->

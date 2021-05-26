@@ -23,10 +23,12 @@ public enum SalesOrderStatus {
     //Paid = 3,   軸が違う。
 };
 
+
 // 受注
 // 一つの注文に複数の商品がある。=> SalesOrderDetail を複数持つ。
+// 保存時検証は, IValidatableObject を実装する.
 [Table("sales_orders")]
-public class SalesOrder: RecordBase, INotifyPropertyChanged
+public class SalesOrder: RecordBase, INotifyPropertyChanged, IValidatableObject
 {
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -62,6 +64,25 @@ public class SalesOrder: RecordBase, INotifyPropertyChanged
         }
     }
 
+
+    // @override IValidatableObject
+    public IEnumerable<ValidationResult> Validate(
+                                        ValidationContext validationContext)
+    {
+        if ( CustomerShipTo.Contains("福岡県" )) {
+            // IEnumerable<> なので yield で返す.
+            yield return new ValidationResult(
+                    "Blog Title cannot match Blogger Name",
+                    new[] {nameof(CustomerShipTo)} ); // 対象メンバリスト. 複数可.
+        }
+
+        if (Details.Count == 0) {
+            yield return new ValidationResult(
+                    "一つは明細が必要", new[] {nameof(Details)} );
+        }
+    }
+
+
     // データベースに保存しない
     [NotMapped]
     public SalesOrderStatus Status {
@@ -84,8 +105,9 @@ public class SalesOrder: RecordBase, INotifyPropertyChanged
 }
 
 
+// 明細行
 [Table("sales_order_details")]
-public class SalesOrderDetail
+public class SalesOrderDetail: IValidatableObject
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -100,6 +122,22 @@ public class SalesOrderDetail
 
     [Required]
     public SalesOrderStatus Status { get; set; }
+
+    [Required(AllowEmptyStrings = true) ]
+    public string Comment { get; set; }
+
+    // @override IValidatableObject
+    public IEnumerable<ValidationResult> Validate(
+                                        ValidationContext validationContext)
+    {
+        if ( Comment.Equals("NG") ) {
+            // IEnumerable<> なので yield で返す.
+            yield return new ValidationResult(
+                "トランザクションのテスト",
+                new[] {nameof(Comment)} ); // 対象メンバリスト. 複数可.
+        }
+    }
+
 
     /// //
     // Navigation properties

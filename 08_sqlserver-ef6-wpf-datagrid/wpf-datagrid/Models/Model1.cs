@@ -24,6 +24,7 @@ public class Model1 : DbContext
         return base.SaveChanges();
     }
 
+
     public override Task<int> SaveChangesAsync(
                         CancellationToken cancellationToken = default)
     {
@@ -35,7 +36,7 @@ public class Model1 : DbContext
     void add_timestamps()
     {
         var entities = ChangeTracker.Entries()
-            .Where(x => x.Entity is RecordBase && 
+            .Where(x => x.Entity is RecordBase &&
                    (x.State == EntityState.Added || x.State == EntityState.Modified));
 
         var now = DateTime.UtcNow; // current datetime
@@ -51,7 +52,7 @@ public class Model1 : DbContext
     // http://go.microsoft.com/fwlink/?LinkId=390109 を参照してください。
 
     public virtual DbSet<Customer> Customers { get; set; }
-    
+
     // Product
     public virtual DbSet<Product> Products { get; set; }
     public virtual DbSet<ProdCategory> ProdCategories { get; set; }
