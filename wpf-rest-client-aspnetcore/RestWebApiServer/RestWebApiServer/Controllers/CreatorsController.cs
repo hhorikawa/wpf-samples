@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestWebApiServer.Data;
 using RestWebApiServer.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace RestWebApiServer.Controllers
 {
 
-[Route("api/[controller]")]
+//[Route("api/[controller]")]
+[Route("api/creators")]
 [ApiController]
 public class CreatorsController : ControllerBase
 {
@@ -24,15 +26,17 @@ public class CreatorsController : ControllerBase
 
     // GET: api/Creators
     [HttpGet]
+    [SwaggerOperation(OperationId = "FindAllCreators")] 
     public async Task<ActionResult<IEnumerable<Creator>>> GetCreator()
     {
         return await _context.Creator.ToListAsync();
     }
 
         // GET: api/Creators/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Creator>> GetCreator(int id)
-        {
+    [HttpGet("{id}")]
+    [SwaggerOperation(OperationId = "FindCreator")] 
+    public async Task<ActionResult<Creator>> GetCreator(int id)
+    {
             var creator = await _context.Creator.FindAsync(id);
 
             if (creator == null)
@@ -45,9 +49,10 @@ public class CreatorsController : ControllerBase
 
         // PUT: api/Creators/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCreator(int id, Creator creator)
-        {
+    [HttpPut("{id}")]
+    [SwaggerOperation(OperationId = "UpdateCreator")] 
+    public async Task<IActionResult> PutCreator(int id, [FromBody] Creator creator)
+    {
             if (id != creator.Id)
             {
                 return BadRequest();
@@ -76,9 +81,10 @@ public class CreatorsController : ControllerBase
 
         // POST: api/Creators
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Creator>> PostCreator(Creator creator)
-        {
+    [HttpPost]
+    [SwaggerOperation(OperationId = "CreateCreator")] 
+    public async Task<ActionResult<Creator>> PostCreator([FromBody] Creator creator)
+    {
             _context.Creator.Add(creator);
             await _context.SaveChangesAsync();
 
@@ -86,9 +92,10 @@ public class CreatorsController : ControllerBase
         }
 
         // DELETE: api/Creators/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCreator(int id)
-        {
+    [HttpDelete("{id}")]
+    [SwaggerOperation(OperationId = "DestroyCreator")]
+    public async Task<IActionResult> DeleteCreator(int id)
+    {
             var creator = await _context.Creator.FindAsync(id);
             if (creator == null)
             {

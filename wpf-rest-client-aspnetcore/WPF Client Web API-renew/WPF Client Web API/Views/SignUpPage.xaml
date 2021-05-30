@@ -1,0 +1,79 @@
+﻿<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:WPF_Client_Web_API.Views"
+      x:Class="WPF_Client_Web_API.Views.SignUpPage"
+      mc:Ignorable="d" 
+      d:DesignHeight="480" d:DesignWidth="640"
+      Title="HomePage">
+
+  <Grid>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="0.05*" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="0.05*" />
+    </Grid.RowDefinitions>
+
+    <Border Grid.Row="1" Width=" 400"
+                        Height="300" 
+                        BorderThickness="1" 
+                        BorderBrush="Black" 
+                        CornerRadius="20" 
+                        Opacity="1">
+      <Border.Background>
+          <ImageBrush ImageSource="/Content/img/bg_2.png">
+            <ImageBrush.RelativeTransform>
+              <TransformGroup>
+                <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="1.5" ScaleY="1.5"/>
+                <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                <RotateTransform CenterY="0.5" CenterX="0.5"/>
+                <TranslateTransform/>
+              </TransformGroup>
+            </ImageBrush.RelativeTransform>
+          </ImageBrush>
+      </Border.Background>
+
+      <StackPanel Orientation="Vertical" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Width=" 400"
+                                Height="300" >
+        <TextBlock Text="Enter Your Full Name"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" 
+                                   Margin="0,70,0,0" 
+                                   FontWeight="Bold" 
+                                   FontSize="18" 
+                                   Foreground="Black" />
+        <Border Width="220" Height="50"
+                                Margin="0,10,0,0">
+          <Border.Background>
+              <ImageBrush ImageSource="/Content/img/text-box_bg.png"/>
+          </Border.Background>
+
+            <TextBox x:Name="txtName" 
+                                    BorderThickness="0"
+                                    FontSize="18"
+                                    Width="220"
+                                    Height="50" 
+                                    Background="{x:Null}" 
+                                    Padding="10,12,0,0" 
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"/>
+          </Border>
+
+          <Button x:Name="btnReg"
+                                Content="Register"
+                                Width="220" 
+                                Height="50"
+                                Margin="0,10,0,0"
+                                FontSize="18" 
+                                FontWeight="Bold" 
+                                Click="BtnReg_Click" />
+
+
+        </StackPanel>
+      </Border>
+    </Grid>
+</Page>

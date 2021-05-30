@@ -1,17 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc; // [Route], [ApiController], [HttpGet]
 using Microsoft.EntityFrameworkCore;
 using RestWebApiServer.Data;
 using RestWebApiServer.Models;
+using Swashbuckle.AspNetCore.Annotations; // 注意! これだけでは有効にならない.
+                                          // See Startup#ConfigureServices()
 
 namespace RestWebApiServer.Controllers
 {
 
-[Route("api/[controller]")]
+// [Route("api/[controller]")]  これだと api/Books と大文字になる
+[Route("api/books")]
 [ApiController]
 public class BooksController : ControllerBase
 {
@@ -23,17 +26,20 @@ public class BooksController : ControllerBase
     }
 
     // GET: api/Books
+    // Client クラスに押し込められるので, FindAllだけでは分からない。
     [HttpGet]
+    [SwaggerOperation(OperationId = "FindAllBooks")] 
     public async Task<ActionResult<IEnumerable<Book>>> GetBook()
     {
         return await _context.Book.ToListAsync();
     }
 
         // GET: api/Books/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
-        {
-            var book = await _context.Book.FindAsync(id);
+    [HttpGet("{id}")]
+    [SwaggerOperation(OperationId = "FindBook")]
+    public async Task<ActionResult<Book>> GetBook(int id)
+    {
+        var book = await _context.Book.FindAsync(id);
 
             if (book == null)
             {
@@ -45,9 +51,10 @@ public class BooksController : ControllerBase
 
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, Book book)
-        {
+    [HttpPut("{id}")]
+    [SwaggerOperation(OperationId = "UpdateBook")]
+    public async Task<IActionResult> PutBook(int id, [FromBody] Book book)
+    {
             if (id != book.Id)
             {
                 return BadRequest();
@@ -76,9 +83,10 @@ public class BooksController : ControllerBase
 
         // POST: api/Books
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Book>> PostBook(Book book)
-        {
+    [HttpPost]
+    [SwaggerOperation(OperationId = "CreateBook")]
+    public async Task<ActionResult<Book>> PostBook([FromBody] Book book)
+    {
             _context.Book.Add(book);
             await _context.SaveChangesAsync();
 
@@ -86,9 +94,10 @@ public class BooksController : ControllerBase
         }
 
         // DELETE: api/Books/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBook(int id)
-        {
+    [HttpDelete("{id}")]
+    [SwaggerOperation(OperationId = "DestroyBook")]
+    public async Task<IActionResult> DeleteBook(int id)
+    {
             var book = await _context.Book.FindAsync(id);
             if (book == null)
             {

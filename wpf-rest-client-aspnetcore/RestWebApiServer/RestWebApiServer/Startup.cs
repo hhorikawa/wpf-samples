@@ -1,4 +1,4 @@
-﻿// -*- coding:utf-8-with-signature -*-
+// -*- coding:utf-8-with-signature -*-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 //using Microsoft.AspNetCore.Mvc;
@@ -38,6 +38,7 @@ public class Startup
         services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RestWebApiServer",
                                                      Version = "v1" });
+                c.EnableAnnotations();
             });
 
         // データベースに接続する。
